@@ -10,16 +10,12 @@ public class study : MonoBehaviour {
 
 	private const int maxLine = 7;
 	private const int maxRow = 7;
+	private	const int invalidValue = -1;
 	public class grid
 	{
 		public Vector3 		pos;
 		public GameObject 	cube; //null is have not, non-null is have cube
 
-//		grid(Vector3 posParam, GameObject objParam)
-//		{
-//			pos = posParam;
-//			cube = objParam;
-//		}
 	}
 	
 //	public grid[] testGrid = {
@@ -152,6 +148,63 @@ public class study : MonoBehaviour {
 		{
 			//no, go on find
 			return findCube(line+1, row);
+		}
+
+	}
+
+	void findGridbyCube (GameObject cubeParam, out int lineParam, out int rowParam)
+	{
+		int line, row; 
+		for(row = 0; row < 7; row++)
+		{
+			for(line = 0; line < 7; line++)
+			{
+				if(cubeParam == gridArray[line, row].cube)
+				{
+					lineParam 	= line;
+					rowParam 	= row;
+					return;
+
+				}
+			}
+		}
+		lineParam 	= invalidValue;
+		rowParam 	= invalidValue;
+		return;
+	}
+
+	//cube fa xian zi ji zhou wei de tongse qiu 
+	void findSameColor()
+	{
+		GameObject currCube;
+
+		int line, row;
+		findGridbyCube (currCube, line, row);
+		if (line != invalidValue && row != invalidValue) 
+		{
+
+		} 
+		else 
+		{
+			//error
+		}
+	}
+
+	void findSameColorCube(int line, int row)
+	{
+		if (line < 0 || line >= maxLine) 
+		{
+			return;
+		}
+		if (row < 0 || row >= maxRow) 
+		{
+			return;
+		}
+
+		if (null != gridArray [line, row].cube) 
+		{
+			Renderer render = gridArray[line, row].cube.GetComponents<Renderer>();
+			render.material.color;
 		}
 
 	}

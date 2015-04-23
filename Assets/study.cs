@@ -204,7 +204,9 @@ public class study : MonoBehaviour {
 		if (null != gridArray [line, row].cube) 
 		{
 			Renderer render = gridArray[line, row].cube.GetComponents<Renderer>();
-			render.material.color;
+//			render.material.color;
+
+			gridArray[line, row].cube.AddComponent<>();
 		}
 
 	}

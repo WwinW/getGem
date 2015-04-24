@@ -3,7 +3,7 @@ using System.Collections;
 
 public class study : MonoBehaviour {
 
-//	public GameObject cube;
+	public GameObject cube;
 	public Rigidbody bullet;
 //	public GameObject bullet;
 	public float speed = 10f;
@@ -203,10 +203,10 @@ public class study : MonoBehaviour {
 
 		if (null != gridArray [line, row].cube) 
 		{
-//			Renderer render = gridArray[line, row].cube.GetComponents<Renderer>();
-//			int i = render.material.color.r;
-//			gridArray[line, row].cube;
+			Renderer render = gridArray[line, row].cube.GetComponents<Renderer>();
+//			render.material.color;
 
+			gridArray[line, row].cube.AddComponent<>();
 		}
 
 	}

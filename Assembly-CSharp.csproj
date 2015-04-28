@@ -51,6 +51,8 @@
      <Compile Include="Assets\PoolManagerExampleFiles\Scripts\CreationExample.cs" />
      <Compile Include="Assets\PoolManagerExampleFiles\Scripts\ReallySimpleParticleSpawner.cs" />
      <Compile Include="Assets\PoolManagerExampleFiles\Scripts\SimpleSpawner.cs" />
+     <Compile Include="Assets\bullet.cs" />
+     <Compile Include="Assets\cube.cs" />
      <Compile Include="Assets\primitives.v1\primitives_testscene\_resources\controller\MouseLook.cs" />
      <Compile Include="Assets\primitives.v1\primitives_testscene\_resources\failscript.cs" />
      <Compile Include="Assets\study.cs" />

@@ -176,18 +176,18 @@ public class study : MonoBehaviour {
 	//cube fa xian zi ji zhou wei de tongse qiu 
 	void findSameColor()
 	{
-		GameObject currCube;
+//		GameObject currCube;
 
 		int line, row;
-		findGridbyCube (currCube, line, row);
-		if (line != invalidValue && row != invalidValue) 
-		{
-
-		} 
-		else 
-		{
-			//error
-		}
+//		findGridbyCube (currCube, line, row);
+//		if (line != invalidValue && row != invalidValue) 
+//		{
+//
+//		} 
+//		else 
+//		{
+//			//error
+//		}
 	}
 
 	void findSameColorCube(int line, int row)
@@ -203,11 +203,11 @@ public class study : MonoBehaviour {
 
 		if (null != gridArray [line, row].cube) 
 		{
-			Renderer render = gridArray[line, row].cube.GetComponents<Renderer>();
+//			Renderer render = gridArray[line, row].cube.GetComponents<Renderer>();
 //			render.material.color;
 
-			gridArray[line, row].cube.AddComponent<>();
-		}
+//			gridArray[line, row].cube.AddComponent<>();
+		} 
 
 	}
 

@@ -149,37 +149,54 @@ public class study : MonoBehaviour {
 //			FireRocket();
 //		}
 
-		int nbTouches = Input.touchCount;
 
-		Debug.Log("Touches is " + nbTouches	);
-		if(nbTouches > 0)
+		int nbTouches = iPhoneInput.touchCount;
+		if (nbTouches > 0)
 		{
-			for (int i = 0; i < nbTouches; i++)
+			iPhoneTouch touch = iPhoneInput.GetTouch(0);
+			iPhoneTouchPhase phase = touch.phase;
+			switch(phase)
 			{
-				Touch touch = Input.GetTouch(i);
-				
-				TouchPhase phase = touch.phase;
-				
-				switch(phase)
-				{
-				case TouchPhase.Began:
-					print("New touch detected at position " + touch.position + " , index " + touch.fingerId);
-					break;
-				case TouchPhase.Moved:
-					print("Touch index " + touch.fingerId + " has moved by " + touch.deltaPosition);
-					break;
-				case TouchPhase.Stationary:
-					print("Touch index " + touch.fingerId + " is stationary at position " + touch.position);
-					break;
-				case TouchPhase.Ended:
-					print("Touch index " + touch.fingerId + " ended at position " + touch.position);
-					break;
-				case TouchPhase.Canceled:
-					print("Touch index " + touch.fingerId + " cancelled");
-					break;
-				}
+			case iPhoneTouchPhase.Began:
+				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
+				break;
+
+			case iPhoneTouchPhase.Ended:
+				Debug.Log("Touch index " + touch.fingerId + " ended at position " + touch.position);
+				break;
 			}
 		}
+//		int nbTouches = Input.touchCount;
+//
+//		Debug.Log("Touches is " + nbTouches	);
+//		if(nbTouches > 0)
+//		{
+//			for (int i = 0; i < nbTouches; i++)
+//			{
+//				Touch touch = Input.GetTouch(i);
+//				
+//				TouchPhase phase = touch.phase;
+//				
+//				switch(phase)
+//				{
+//				case TouchPhase.Began:
+//					print("New touch detected at position " + touch.position + " , index " + touch.fingerId);
+//					break;
+//				case TouchPhase.Moved:
+//					print("Touch index " + touch.fingerId + " has moved by " + touch.deltaPosition);
+//					break;
+//				case TouchPhase.Stationary:
+//					print("Touch index " + touch.fingerId + " is stationary at position " + touch.position);
+//					break;
+//				case TouchPhase.Ended:
+//					print("Touch index " + touch.fingerId + " ended at position " + touch.position);
+//					break;
+//				case TouchPhase.Canceled:
+//					print("Touch index " + touch.fingerId + " cancelled");
+//					break;
+//				}
+//			}
+//		}
 	}
 
 	void FireRocket () {

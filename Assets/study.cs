@@ -14,6 +14,9 @@ public class study : MonoBehaviour {
 
 	static public Color color;
 
+	iPhoneTouch startTouch;
+	iPhoneTouch endTouch;
+
 	public class grid
 	{
 		public Vector3 		pos;
@@ -159,10 +162,16 @@ public class study : MonoBehaviour {
 			{
 			case iPhoneTouchPhase.Began:
 				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
+				startTouch = touch;
 				break;
 
 			case iPhoneTouchPhase.Ended:
 				Debug.Log("Touch index " + touch.fingerId + " ended at position " + touch.position);
+				endTouch = touch;
+
+				//calculate launch power
+				Vector2 deltaVector = endTouch.position - startTouch;
+
 				break;
 			}
 		}
@@ -211,9 +220,6 @@ public class study : MonoBehaviour {
 		Debug.Log("FireRocket");
 	}
 
-	void OnMouseDown()
-	{
 
-	}
 	
 }

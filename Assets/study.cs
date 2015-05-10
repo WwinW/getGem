@@ -170,7 +170,8 @@ public class study : MonoBehaviour {
 				endTouch = touch;
 
 				//calculate launch power
-				Vector2 deltaVector = endTouch.position - startTouch;
+				Vector2 deltaVector = endTouch.position - startTouch.position;
+
 
 				break;
 			}

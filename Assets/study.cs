@@ -17,11 +17,12 @@ public class study : MonoBehaviour {
 	iPhoneTouch startTouch;
 	iPhoneTouch endTouch;
 
+	Vector3 initVelocity;
+
 	public class grid
 	{
 		public Vector3 		pos;
 		public cube 		cube; //null is have not, non-null is have cube
-
 	}
 
 	static public Color[] colorArray = 
@@ -116,17 +117,6 @@ public class study : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 	
-		//use prefab demo
-//		for (int y = -2; y < 3; y++) {
-//			for (int x = -2; x < 3; x++) {
-//				cube cubeObj = (cube) Instantiate(cubeObject, new Vector3(x, y, 0), Quaternion.identity);
-//				int index = Random.Range(0, colorArray.Length);
-//				Renderer render = cubeObj.GetComponent<Renderer>();
-//				render.material.color = colorArray[index];
-//
-//			}
-//		}
-
 		int x = 0;
 		for (; x < maxX; x++) 
 		{
@@ -148,10 +138,6 @@ public class study : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-//		if (Input.GetButtonDown("Fire1")) {
-//			FireRocket();
-//		}
-
 
 		int nbTouches = iPhoneInput.touchCount;
 		if (nbTouches > 0)
@@ -171,56 +157,29 @@ public class study : MonoBehaviour {
 
 				//calculate launch power
 				Vector2 deltaVector = endTouch.position - startTouch.position;
+				float deltaTime = endTouch.timeDelta - startTouch.timeDelta;
+				deltaVector.Normalize() /= deltaTime;
 
-
+				initVelocity = new Vector3(deltaVector.x, deltaVector.y, 10.0f);
+				Debug.Log("initVelocity is " + initVelocity);
+				//fire bullet
+				FireBullet ();
 				break;
 			}
 		}
-//		int nbTouches = Input.touchCount;
-//
-//		Debug.Log("Touches is " + nbTouches	);
-//		if(nbTouches > 0)
-//		{
-//			for (int i = 0; i < nbTouches; i++)
-//			{
-//				Touch touch = Input.GetTouch(i);
-//				
-//				TouchPhase phase = touch.phase;
-//				
-//				switch(phase)
-//				{
-//				case TouchPhase.Began:
-//					print("New touch detected at position " + touch.position + " , index " + touch.fingerId);
-//					break;
-//				case TouchPhase.Moved:
-//					print("Touch index " + touch.fingerId + " has moved by " + touch.deltaPosition);
-//					break;
-//				case TouchPhase.Stationary:
-//					print("Touch index " + touch.fingerId + " is stationary at position " + touch.position);
-//					break;
-//				case TouchPhase.Ended:
-//					print("Touch index " + touch.fingerId + " ended at position " + touch.position);
-//					break;
-//				case TouchPhase.Canceled:
-//					print("Touch index " + touch.fingerId + " cancelled");
-//					break;
-//				}
-//			}
-//		}
 	}
 
-	void FireRocket () {
-		Rigidbody rigid = (Rigidbody)Instantiate(bullet, new Vector3(0, 0, -2), transform.rotation);
-//		Rigidbody rigid = rocketClone.GetComponent<Rigidbody> ();
-//		Vector3 vec = Vector3 (0, 0, 1);
-		rigid.velocity = new Vector3 (0, 0, 1) * speed;
-//		rigid.velocity = transform.forward * speed;
-		// You can also acccess other components / scripts of the clone
-//		rocketClone.GetComponent<MyRocketScript>().DoSomething();
+	void FireBullet () 
+	{
+		bullet objBullet = (bullet)Instantiate(bullet, new Vector3(0, 0, -2), transform.rotation);
+		Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
+		rigid.velocity = initVelocity;
 
-		Debug.Log("FireRocket");
+		int index = Random.Range(0, colorArray.Length);
+		Renderer render = objBullet.GetComponent<Renderer>();
+		render.material.color = colorArray[index];
+
+		Debug.Log("FireBullet");
 	}
-
-
 	
 }

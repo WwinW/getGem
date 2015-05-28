@@ -7,20 +7,22 @@ public class cube : MonoBehaviour {
 
 	private const int invalidIndex = -1;
 
-	public float generateY = 8.0f;
+	public float generateY = 8.2f;
+	public float intervalPos = 1.1f; 
 	public int indexX = invalidIndex;
 	public int indexY = invalidIndex;
-	
-	public bool readyPos 
+	private bool ready = false;
+
+	public bool readyPos
 	{ 
 		get 
 		{
-			return readyPos;	
+			return ready;	
 		}
 				
 		set 
 		{
-			readyPos = value;
+			ready = value;
 		}
 	}
 
@@ -32,58 +34,199 @@ public class cube : MonoBehaviour {
 
 	void upFindCube()
 	{
+
 		int x = 0;
 		int y = 0;
+		int blankCount = 0;
+		if (readyPos == false)
+		{
+			return;
+		}
 
 		for (; x < study.maxX; x++) 
 		{
+			y = 0;
+			blankCount = 0;
 			for(; y < study.maxY; y++)
 			{
-				if( null == study.gridArray[indexX, y].cube)
+				
+				if( null == study.gridArray[x, y].cube)
 				{
-					cube objectCube = findCube(indexX, y);
+					cube objectCube = findCube(x, y);
+					//				Debug.Log("findCube x:" + indexX + " y:" + y);
+
 					if(objectCube != null)
 					{
+						int originY = objectCube.indexY;
 						//old cube
-						study.gridArray[indexX, y].cube = objectCube;
+						study.gridArray[x, y].cube = objectCube;
 						
 						study.gridArray[objectCube.indexX, objectCube.indexY].cube = null;
-						
-						study.gridArray[indexX, y].cube.setIndex(indexX, y);
-						study.gridArray[indexX, y].cube.readyPos = false;
+
+						study.gridArray[x, y].cube.setIndex(x, y);
+						study.gridArray[x, y].cube.readyPos = false;
 						
 						Hashtable args = new Hashtable();
-						args.Add("time",1f);
+//						args.Add("time",1f*(originY - y));
+						args.Add("time", 1.5f);
+//						args.Add("speed",5f);
 						args.Add("oncomplete", "AnimationEnd");
-						args.Add("x",study.gridArray[indexX, y].pos.x);
-						args.Add("y",study.gridArray[indexX, y].pos.y);
-						args.Add("z",study.gridArray[indexX, y].pos.z);
+						args.Add("x",study.gridArray[x, y].pos.x);
+						args.Add("y",study.gridArray[x, y].pos.y);
+						args.Add("z",study.gridArray[x, y].pos.z);
+
+						iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
 						
-						iTween.MoveTo(study.gridArray[indexX, y].cube.gameObject, args);
-						
+						Debug.Log("move cube indexX is "+indexX+" indexY is "+y);
 					}
 					else
 					{
 						//new cube
-						Vector3 vec3 = new Vector3(study.gridArray[indexX, y].pos.x, generateY, 0);
+						blankCount++;
+						Vector3 vec3 = new Vector3(study.gridArray[x, y].pos.x, generateY+(intervalPos*blankCount), 0);
 						cube newCube = (cube)Instantiate(CubeDefine, vec3, transform.rotation);
+
+						study.gridArray[x, y].cube = newCube;
+
+						study.gridArray[x, y].cube.setIndex(x, y);
 						
-						study.gridArray[indexX, y].cube = newCube;
-						
-						study.gridArray[indexX, y].cube.setIndex(indexX, y);
+						Debug.Log("create new cube indexX is "+indexX+" indexY is "+y);
 						
 						Hashtable args = new Hashtable();
-						args.Add("time",1f);
+						//args.Add("time",1f* (generateY - y));
+						args.Add("time",1.5f);
+//						args.Add("speed",5f);
 						args.Add("oncomplete", "AnimationEnd");
-						args.Add("x",study.gridArray[indexX, y].pos.x);
-						args.Add("y",study.gridArray[indexX, y].pos.y);
-						args.Add("z",study.gridArray[indexX, y].pos.z);
-						iTween.MoveTo(study.gridArray[indexX, y].cube.gameObject, args);
+						args.Add("x",study.gridArray[x, y].pos.x);
+						args.Add("y",study.gridArray[x, y].pos.y);
+						args.Add("z",study.gridArray[x, y].pos.z);
+						iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
 					}
 				}
-			}				
+			}		
 		}
+
+//		for(; y < study.maxY; y++)
+//		{
+//			
+//			if( null == study.gridArray[indexX, y].cube)
+//			{
+//				cube objectCube = findCube(indexX, y);
+//				//				Debug.Log("findCube x:" + indexX + " y:" + y);
+//				if(objectCube != null)
+//				{
+//					//old cube
+//					study.gridArray[indexX, y].cube = objectCube;
+//					
+//					study.gridArray[objectCube.indexX, objectCube.indexY].cube = null;
+//					
+//					study.gridArray[indexX, y].cube.setIndex(indexX, y);
+//					study.gridArray[indexX, y].cube.readyPos = false;
+//					
+//					Hashtable args = new Hashtable();
+//					args.Add("time",1f);
+//					args.Add("oncomplete", "AnimationEnd");
+//					args.Add("x",study.gridArray[indexX, y].pos.x);
+//					args.Add("y",study.gridArray[indexX, y].pos.y);
+//					args.Add("z",study.gridArray[indexX, y].pos.z);
+//					
+//					iTween.MoveTo(study.gridArray[indexX, y].cube.gameObject, args);
+//					
+//					Debug.Log("move cube indexX is "+indexX+" indexY is "+y);
+//				}
+//				else
+//				{
+//					//new cube
+//					Vector3 vec3 = new Vector3(study.gridArray[indexX, y].pos.x, generateY, 0);
+//					cube newCube = (cube)Instantiate(CubeDefine, vec3, transform.rotation);
+//					
+//					study.gridArray[indexX, y].cube = newCube;
+//					
+//					study.gridArray[indexX, y].cube.setIndex(indexX, y);
+//					
+//					Debug.Log("create new cube indexX is "+indexX+" indexY is "+y);
+//					
+//					Hashtable args = new Hashtable();
+//					args.Add("time",1f);
+//					args.Add("oncomplete", "AnimationEnd");
+//					args.Add("x",study.gridArray[indexX, y].pos.x);
+//					args.Add("y",study.gridArray[indexX, y].pos.y);
+//					args.Add("z",study.gridArray[indexX, y].pos.z);
+//					iTween.MoveTo(study.gridArray[indexX, y].cube.gameObject, args);
+//				}
+//			}
+//		}		
 	}
+
+
+	void upFindCube2()
+	{
+		
+		int x = indexX;
+		int y = indexY;
+		int blankCount = 0;
+
+		for(; y < study.maxY; y++)
+		{
+			
+			if( null == study.gridArray[x, y].cube)
+			{
+				cube objectCube = findCube(x, y);
+				//				Debug.Log("findCube x:" + indexX + " y:" + y);
+				
+				if(objectCube != null)
+				{
+//					iTween.Stop(objectCube.gameObject);
+
+					int originY = objectCube.indexY;
+					//old cube
+					study.gridArray[x, y].cube = objectCube;
+					
+					study.gridArray[objectCube.indexX, objectCube.indexY].cube = null;
+					
+					study.gridArray[x, y].cube.setIndex(x, y);
+					study.gridArray[x, y].cube.readyPos = false;
+					
+					Hashtable args = new Hashtable();
+					//						args.Add("time",1f*(originY - y));
+					args.Add("time", 1.5f);
+					//						args.Add("speed",5f);
+					args.Add("oncomplete", "AnimationEnd");
+					args.Add("x",study.gridArray[x, y].pos.x);
+					args.Add("y",study.gridArray[x, y].pos.y);
+					args.Add("z",study.gridArray[x, y].pos.z);
+
+					iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
+
+					Debug.Log("move cube indexX is "+indexX+" indexY is "+y);
+				}
+				else
+				{
+					//new cube
+					blankCount++; 
+					Vector3 vec3 = new Vector3(study.gridArray[x, y].pos.x, generateY+(intervalPos*blankCount), 0);
+					cube newCube = (cube)Instantiate(CubeDefine, vec3, transform.rotation);
+					
+					study.gridArray[x, y].cube = newCube;
+					
+					study.gridArray[x, y].cube.setIndex(x, y);
+					
+					Debug.Log("create new cube indexX is "+indexX+" indexY is "+y);
+					
+					Hashtable args = new Hashtable();
+					//args.Add("time",1f* (generateY - y));
+					args.Add("time",1.5f);
+					//						args.Add("speed",5f);
+					args.Add("oncomplete", "AnimationEnd");
+					args.Add("x",study.gridArray[x, y].pos.x);
+					args.Add("y",study.gridArray[x, y].pos.y);
+					args.Add("z",study.gridArray[x, y].pos.z);
+					iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
+				}
+			}
+		}	
+	}
+
 
 	void AnimationEnd()
 	{
@@ -111,52 +254,16 @@ public class cube : MonoBehaviour {
 		}
 		
 	}
+
 	
-//	void findGridbyCube (GameObject cubeParam, out int lineParam, out int rowParam)
-//	{
-//		int line, row; 
-//		for(row = 0; row < 7; row++)
-//		{
-//			for(line = 0; line < 7; line++)
-//			{
-//				if(cubeParam == study.gridArray[line, row].cube)
-//				{
-//					lineParam 	= line;
-//					rowParam 	= row;
-//					return;
-//					
-//				}
-//			}
-//		}
-//		lineParam 	= invalidIndex;
-//		rowParam 	= invalidIndex;
-//		return;
-//	}
-	
-	//cube fa xian zi ji zhou wei de tongse qiu 
-//	void findSameColorCube()
-//	{
-		//		GameObject currCube;
-		
-		//		int line, row;
-		//		findGridbyCube (currCube, line, row);
-		//		if (line != invalidValue && row != invalidValue) 
-		//		{
-		//
-		//		} 
-		//		else 
-		//		{
-		//			//error
-		//		}
-//	}
-	
-	void findSameColorCube(int x, int y)
+	void findSameColorCube(int x, int y, Color bulletColor)
 	{
-		if (x < 0 || y >= study.maxY) 
+		Debug.Log("visit cube index x is:"+x+" y is:"+y);
+		if (x < 0 || x >= study.maxX) 
 		{
 			return;
 		}
-		if (x < 0 || y >= study.maxX) 
+		if (y < 0 || y >= study.maxY) 
 		{
 			return;
 		}
@@ -167,39 +274,51 @@ public class cube : MonoBehaviour {
 		}
 
 		cube currentCube = study.gridArray[x, y].cube;
-		if(currentCube.readyPos == false)
+
+		if (currentCube.readyPos == false)
 		{
+//			Destroy (currentCube);
 			return;
-		}
-
-
-		Renderer render = currentCube.GetComponent<Renderer>();
-		if(render.material.color == study.color)
+		} 
+		else
 		{
-			study.gridArray[x,y].cube = null;
+			Renderer render = currentCube.GetComponent<Renderer>();
+			if(render.material.color == bulletColor)
+			{
+				study.gridArray[x,y].cube = null;
 
-			// [x-1, y]
-			findSameColorCube(x-1, y);
+				iTween.Stop(currentCube.gameObject);
+				//destroy this cube
+				Destroy(currentCube.gameObject);
+				Debug.Log("Destroy cube index x is:"+x+" y is:"+y);
+				
+				// [x-1, y]
+				findSameColorCube(x-1, y, bulletColor);
+				
+				// [x+1, y]
+				findSameColorCube(x+1, y, bulletColor);
+				
+				// [x, y-1]
+				findSameColorCube(x, y-1, bulletColor);
+				
+				//[x, y+1]
+				findSameColorCube(x, y+1, bulletColor);
+				
 
-			// [x+1, y]
-			findSameColorCube(x+1, y);
 
-			// [x, y-1]
-			findSameColorCube(x, y-1);
-
-			//[x, y+1]
-			findSameColorCube(x, y+1);
-
-			//destroy this cube
-			Destroy(currentCube);
-
+				
+			}
+				
 		}
+
+
+
 	}
 
 	// Use this for initialization
 	void Start () {
 	
-		study.gridArray[0,0].cube = null;
+	
 	}
 	
 	// Update is called once per frame
@@ -212,15 +331,46 @@ public class cube : MonoBehaviour {
 		if (otherObj.gameObject.tag == "bullet") 
 		{
 			//collision is bullet, destroy bullet
+			Renderer bulletRender = otherObj.gameObject.GetComponent<Renderer>();
+
+			Renderer cubeRender = gameObject.GetComponent<Renderer>();
+			if(bulletRender.material.color == cubeRender.material.color)
+			{
+				if(readyPos == true)
+				{
+					findSameColorCube(indexX, indexY, bulletRender.material.color);
+					
+					Debug.Log("current indexX is " +indexX + " indexY is "+indexY);
+
+//					iTween.Stop(study.gridArray[indexX, indexY].cube.gameObject);
+
+					study.gridArray[indexX, indexY].cube = null;
+					
+					upFindCube();
+					
+					Destroy(gameObject);
+				}
+				else
+				{
+//					iTween.Stop(study.gridArray[indexX, indexY].cube.gameObject);
+
+//					iTween.Stop();
+					study.gridArray[indexX, indexY].cube = null;
+					
+					upFindCube2();
+					
+					Destroy(gameObject);
+				}
+
+			}
+			else
+			{
+				cubeRender.material.color = bulletRender.material.color;
+			}
+
 			Destroy(otherObj.gameObject);
 
-			findSameColorCube(indexX, indexY);
 
-			study.gridArray[indexX, indexY].cube = null;
-
-			upFindCube();
-
-			Destroy(gameObject);
 
 		}
 	}

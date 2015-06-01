@@ -53,12 +53,8 @@
      <Compile Include="Assets\bullet.cs" />
      <Compile Include="Assets\cube.cs" />
      <Compile Include="Assets\iTouch.cs" />
-     <Compile Include="Assets\primitives.v1\primitives_testscene\_resources\controller\MouseLook.cs" />
-     <Compile Include="Assets\primitives.v1\primitives_testscene\_resources\failscript.cs" />
      <Compile Include="Assets\study.cs" />
      <Compile Include="Assets\test.cs" />
-     <None Include="Assets\Models\Materials\Velvet\Velvet.shader" />
-     <None Include="Assets\primitives.v1\readme.txt" />
      <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
      <None Include="Assets\Plugins\PathologicalGames\readme.txt" />
  <Reference Include="UnityEngine.UI">

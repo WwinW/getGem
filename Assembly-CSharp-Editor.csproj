@@ -49,8 +49,6 @@
      <Compile Include="Assets\Editor\PathologicalGames\Common\PGEditorUtils.cs" />
      <Compile Include="Assets\Editor\PathologicalGames\PoolManager\PreRuntimePoolItemInspector.cs" />
      <Compile Include="Assets\Editor\PathologicalGames\PoolManager\SpawnPoolInspector.cs" />
-     <None Include="Assets\Models\Materials\Velvet\Velvet.shader" />
-     <None Include="Assets\primitives.v1\readme.txt" />
      <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
      <None Include="Assets\Plugins\PathologicalGames\readme.txt" />
  <Reference Include="UnityEngine.UI">
@@ -92,8 +90,6 @@
       <Project>{0C1B7984-840E-DB4B-F681-7B61347A1CF5}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{90A2DD8E-77E9-F71D-C2EE-3FD580037DDF}</Project>      <Name>Assembly-CSharp</Name>    </ProjectReference>
-    <ProjectReference Include="Assembly-UnityScript.unityproj">
-      <Project>{A795223B-16E0-31B5-C7AB-552E1FFFC784}</Project>      <Name>Assembly-UnityScript</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

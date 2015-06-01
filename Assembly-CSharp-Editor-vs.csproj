@@ -49,13 +49,8 @@
      <Compile Include="Assets\Editor\PathologicalGames\Common\PGEditorUtils.cs" />
      <Compile Include="Assets\Editor\PathologicalGames\PoolManager\PreRuntimePoolItemInspector.cs" />
      <Compile Include="Assets\Editor\PathologicalGames\PoolManager\SpawnPoolInspector.cs" />
-     <None Include="Assets\Models\Materials\Velvet\Velvet.shader" />
-     <None Include="Assets\primitives.v1\readme.txt" />
      <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
      <None Include="Assets\Plugins\PathologicalGames\readme.txt" />
- <Reference Include="Assembly-UnityScript">
- <HintPath>/Users/mac/getGem/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
- </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

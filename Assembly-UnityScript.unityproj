@@ -46,10 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\primitives.v1\primitives_testscene\_resources\controller\CharacterMotor.js" />
-     <Compile Include="Assets\primitives.v1\primitives_testscene\_resources\controller\FPSInputController.js" />
-     <None Include="Assets\Models\Materials\Velvet\Velvet.shader" />
-     <None Include="Assets\primitives.v1\readme.txt" />
+     <Compile Include="Assets\Small particle pack\TimedObjectDestructor.js" />
      <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
      <None Include="Assets\Plugins\PathologicalGames\readme.txt" />
  <Reference Include="UnityEngine.UI">

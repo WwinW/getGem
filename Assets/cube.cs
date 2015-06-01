@@ -187,16 +187,18 @@ public class cube : MonoBehaviour {
 					study.gridArray[x, y].cube.setIndex(x, y);
 					study.gridArray[x, y].cube.readyPos = false;
 					
-					Hashtable args = new Hashtable();
-					//						args.Add("time",1f*(originY - y));
-					args.Add("time", 1.5f);
-					//						args.Add("speed",5f);
-					args.Add("oncomplete", "AnimationEnd");
-					args.Add("x",study.gridArray[x, y].pos.x);
-					args.Add("y",study.gridArray[x, y].pos.y);
-					args.Add("z",study.gridArray[x, y].pos.z);
+//					Hashtable args = new Hashtable();
+//					//						args.Add("time",1f*(originY - y));
+//					args.Add("time", 1.5f);
+//					//						args.Add("speed",5f);
+//					args.Add("oncomplete", "AnimationEnd");
+//					args.Add("x",study.gridArray[x, y].pos.x);
+//					args.Add("y",study.gridArray[x, y].pos.y);
+//					args.Add("z",study.gridArray[x, y].pos.z);
+//
+//					iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
 
-					iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
+					iTween.MoveUpdate(study.gridArray[x, y].cube.gameObject, new Vector3(study.gridArray[x, y].pos.x, study.gridArray[x, y].pos.y, study.gridArray[x, y].pos.z), 1.5f);
 
 					Debug.Log("move cube indexX is "+indexX+" indexY is "+y);
 				}
@@ -222,6 +224,7 @@ public class cube : MonoBehaviour {
 					args.Add("y",study.gridArray[x, y].pos.y);
 					args.Add("z",study.gridArray[x, y].pos.z);
 					iTween.MoveTo(study.gridArray[x, y].cube.gameObject, args);
+
 				}
 			}
 		}	
@@ -275,13 +278,13 @@ public class cube : MonoBehaviour {
 
 		cube currentCube = study.gridArray[x, y].cube;
 
-		if (currentCube.readyPos == false)
-		{
-//			Destroy (currentCube);
-			return;
-		} 
-		else
-		{
+//		if (currentCube.readyPos == false)
+//		{
+////			Destroy (currentCube);
+//			return;
+//		} 
+//		else
+//		{
 			Renderer render = currentCube.GetComponent<Renderer>();
 			if(render.material.color == bulletColor)
 			{
@@ -303,13 +306,10 @@ public class cube : MonoBehaviour {
 				
 				//[x, y+1]
 				findSameColorCube(x, y+1, bulletColor);
-				
 
-
-				
 			}
 				
-		}
+//		}
 
 
 
@@ -347,6 +347,8 @@ public class cube : MonoBehaviour {
 					study.gridArray[indexX, indexY].cube = null;
 					
 					upFindCube();
+
+					iTween.Stop(gameObject);
 					
 					Destroy(gameObject);
 				}
@@ -355,11 +357,14 @@ public class cube : MonoBehaviour {
 //					iTween.Stop(study.gridArray[indexX, indexY].cube.gameObject);
 
 //					iTween.Stop();
-					study.gridArray[indexX, indexY].cube = null;
+//					study.gridArray[indexX, indexY].cube = null;
 					
-					upFindCube2();
+//					upFindCube2();
 					
-					Destroy(gameObject);
+//					Destroy(gameObject);
+
+					//add 1s
+
 				}
 
 			}

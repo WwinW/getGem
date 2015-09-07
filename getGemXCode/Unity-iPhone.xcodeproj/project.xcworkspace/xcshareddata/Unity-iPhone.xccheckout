@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>59029C76-CA36-40B2-8906-07F27AA7C796</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>Unity-iPhone</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>8FE275FBCC51A73FF358E54D2F476DB0FD88D9B2</key>
 		<string>https://github.com/WwinW/getGem.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>getGemXCode/Unity-iPhone.xcodeproj/project.xcworkspace</string>
+	<string>getGemXCode/Unity-iPhone.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>8FE275FBCC51A73FF358E54D2F476DB0FD88D9B2</key>

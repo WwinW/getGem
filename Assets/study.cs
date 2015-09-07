@@ -19,7 +19,7 @@ public class study : MonoBehaviour {
 	iPhoneTouch startTouch;
 	iPhoneTouch endTouch;
 
-	Vector3 initVelocity;
+	Vector3 initConstantForce;
 
 	float generateY = 10.4f;
 	float intervalPos = 1.1f; 
@@ -33,50 +33,35 @@ public class study : MonoBehaviour {
 	int DestroyCubeScore = 0;//消除cube获得的分数
 	int DestroyCubeCount = 0;//消除cube的数量
 
-	float cubeMoveTime = 1.5f;
+	float cubeMoveTime = 0.8f;
+	float cubeMoveTimeMin = 0.1f;
 
-	bullet objBullet = null;
-
-	bool IsOneStep 		= false;	//是否1级进阶的标志
-	bool IsSecondStep 	= false;	//是否2级进阶的标志
-	bool IsThreeStep 	= false;	//是否3级进阶的标志
-	bool IsFouthStep	= false;	//是否4级进阶的标志
-	bool IsFifthStep 	= false;	//是否5级进阶的标志
-
-	const int mOneMultiValue  	= 1; 		//一级的消除倍数
-	const int mSecondMultiValue = 2;		//二级的消除倍数
-	const int mThreeMultiValue 	= 3;		//三级的消除倍数
-	const int mFouthMultiValue 	= 3;		//四级的消除倍数
-	const int mFifthMultiValue 	= 5;		//五级的消除倍数
-
-	int mOneLevelCount 		= 0;	//进阶一级需要的消除数量
-	int mSecondLevelCount 	= 0;	//进阶二级需要的消除数量
-	int mThreeLevelCount 	= 0;	//进阶三级需要的消除刷量
-	int mFouthLevelCount 	= 0;	//进阶四级需要的消除数量
-	int mFifthLevelCount 	= 0;	//进阶五级需要的消除数量
+	bullet objBullet = null;	//未发射的球
+	bullet objBulletFired = null; //已发射出去的球
 
 	UILabel 		ScoreLabel = null; 
 	UIProgressBar 	ProgressBar = null;
-
-	float MaxTime = 30.0f; //总的消耗时间
-	float DeltaTime = 0;
+	UILabel 		mDestroyCubeCount = null;
+//	UILabel			mDistanceLabel = null;
+	public float MaxTime = 20.0f; 	//总的消耗时间
+	float DeltaTime = 0;			//消耗的时间		
 
 //	FileStream fs;
 //	StreamWriter sw;
 
 //	int colorCubeCount = 0;
 	int indexDestory = 0;
-
+	int mIndexXDestoryLevelUp = 0; //晋级动画消除行标记
 	int mAdvanceBaseCount = 0; //进阶基数, 游戏初始化的时候的赋值，随机一个数字，按照10:5:3:3:2的进阶比例来计算每个进阶指数需要消耗的数量
 
 	public int mInitAdvanceBaseCount = 100;
 	public int mInitDeltaCount = 20;
 
-	bool mbGameing = true;	//游戏是否正在继续
-
-	int DestroyCountOnce = 0; //一次消除cube的数量
-
-	float mBaseTime = 0.1f;   //基础补偿时间
+	bool mbGameing 		= true;		//游戏是否正在继续
+	bool mbPlayLevelUp 	= false; 	//游戏是否在播放过场动画
+	int DestroyCountOnce 	= 0; 	//一次消除cube的数量
+	int DestroyCountAll 	= 0; 	//一关总共的消球数量
+//	float mBaseTime = 0.1f;   //基础补偿时间
 
 	GameObject mEndPanel; //结束窗口
 	GameObject mBackGroud; //背景图
@@ -88,6 +73,18 @@ public class study : MonoBehaviour {
 	static public Color		mCollosionBulletColor; //发生膨胀的bullet的颜色
 	// 碰撞处理需要的变量 end
 
+	int mLevel = 1;		//玩家等级
+	public int LevelCount = 30; //每关的要求消球数量
+
+	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, -2);
+
+	float mDesignScreenHeight = 960.0f;
+
+	float mConstantForceZ = 0;
+
+	Vector3 mScorePanelPos; //cube记分牌在世界坐标中的位置
+
+	static public int sDestroyCubeCount = 0;
 
 	public class grid
 	{
@@ -96,27 +93,282 @@ public class study : MonoBehaviour {
 		public GameObject	labelObj;
 	}
 
-	static public Color[]  colorArray = 
+	static public Color[,]  colorArray = 
 	{
-		new Color(43/255.0f, 212/255.0f, 20/255.0f),
-		new Color(255/255.0f, 218/255.0f, 10/255.0f),
-		new Color(244/255.0f, 64/255.0f, 44/255.0f),
-		new Color(151/255.0f, 46/255.0f, 232/255.0f),
-		new Color(255/255.0f, 88/255.0f, 194/255.0f),
-		new Color(254/255.0f, 149/255.0f, 12/255.0f),
-		new Color(49/255.0f, 225/255.0f, 202/255.0f),
+		{//0
+			new Color(235/255.0f, 110/255.0f, 149/255.0f), 
+			new Color(113/255.0f, 199/255.0f, 212/255.0f),
+			new Color(249/255.0f, 210/255.0f, 220/255.0f),
+			new Color(205/255.0f, 136/255.0f, 184/255.0f),
+			new Color(0, 179/255.0f, 196/255.0f),
+			new Color(255/255.0f, 240/255.0f, 150/255.0f),
+			new Color(240/255.0f, 211/255.0f, 0),
+		},
+		{//1
+			new Color(216/255.0f, 34/255.0f, 13/255.0f), 
+			new Color(191/255.0f, 221/255.0f, 163/255.0f),
+			new Color(255/255.0f, 233/255.0f, 169/255.0f),
+			new Color(240/255.0f, 145/255.0f, 146/255.0f),
+			new Color(249/255.0f, 209/255.0f, 212/255.0f),
+			new Color(209/255.0f, 186/255.0f, 217/255.0f),
+			new Color(101/255.0f, 170/255.0f, 221/255.0f),
+		},
+		{//2
+			new Color(233/255.0f, 71/255.0f, 70/255.0f), 
+			new Color(244/255.0f, 164/255.0f, 92/255.0f),
+			new Color(255/255.0f, 230/255.0f, 135/255.0f),
+			new Color(238/255.0f, 120/255.0f, 54/255.0f),
+			new Color(159/255.0f, 0, 82/255.0f),
+			new Color(233/255.0f, 83/255.0f, 137/255.0f),
+			new Color(241/255.0f, 157/255.0f, 180/255.0f),
+		},
+		{//3
+			new Color(159/255.0f, 0, 82/255.0f), 
+			new Color(235/255.0f, 97/255.0f, 111/255.0f),
+			new Color(252/255.0f, 226/255.0f, 196/255.0f),
+			new Color(192/255.0f, 220/255.0f, 151/255.0f),
+			new Color(65/255.0f, 178/255.0f, 102/255.0f),
+			new Color(237/255.0f, 186/255.0f, 192/255.0f),
+			new Color(0, 173/255.0f, 169/255.0f),
+		},
+		{//4
+			new Color(234/255.0f, 97/255.0f, 137/255.0f), 
+			new Color(249/255.0f, 193/255.0f, 100/255.0f),
+			new Color(254/255.0f, 235/255.0f, 200/255.0f),
+			new Color(243/255.0f, 168/255.0f, 187/255.0f),
+			new Color(230/255.0f, 28/255.0f, 100/255.0f),
+			new Color(234/255.0f, 85/255.0f, 0),
+			new Color(102/255.0f, 43/255.0f, 43/255.0f),
+		},
+		{//5
+			new Color(230/255.0f, 28/255.0f, 100/255.0f), 
+			new Color(107/255.0f, 200/255.0f, 242/255.0f),
+			new Color(255/255.0f, 248/255.0f, 165/255.0f),
+			new Color(241/255.0f, 157/255.0f, 180/255.0f),
+			new Color(80/255.0f, 100/255.0f, 174/255.0f),
+			new Color(204/255.0f, 125/255.0f, 177/255.0f),
+			new Color(183/255.0f, 11/255.0f, 99/255.0f),
+		},
+		{//6
+			new Color(0, 160/255.0f, 202/255.0f), 
+			new Color(187/255.0f, 170/255.0f, 210/255.0f),
+			new Color(212/255.0f, 236/255.0f, 243/255.0f),
+			new Color(236/255.0f, 122/255.0f, 172/255.0f),
+			new Color(230/255.0f, 28/255.0f, 100/255.0f),
+			new Color(228/255.0f, 234/255.0f, 141/255.0f),
+			new Color(171/255.0f, 205/255.0f, 3/255.0f),
+		},
+		{//7
+			new Color(235/255.0f, 97/255.0f, 111/255.0f), 
+			new Color(245/255.0f, 176/255.0f, 135/255.0f),
+			new Color(251/255.0f, 218/255.0f, 200/255.0f),
+			new Color(239/255.0f, 133/255.0f, 140/255.0f),
+			new Color(214/255.0f, 0, 111/255.0f),
+			new Color(253/255.0f, 210/255.0f, 62/255.0f),
+			new Color(190/255.0f, 0, 34/255.0f),
+		},
+		{//8
+			new Color(147/255.0f, 209/255.0f, 211/255.0f), 
+			new Color(203/255.0f, 227/255.0f, 185/255.0f),
+			new Color(235/255.0f, 245/255.0f, 236/255.0f),
+			new Color(247/255.0f, 199/255.0f, 205/255.0f),
+			new Color(238/255.0f, 134/255.0f, 154/255.0f),
+			new Color(123/255.0f, 194/255.0f, 120/255.0f),
+			new Color(199/255.0f, 15/255.0f, 100/255.0f),
+		},
+		{//9
+			new Color(217/255.0f, 51/255.0f, 96/255.0f), 
+			new Color(239/255.0f, 147/255.0f, 187/255.0f),
+			new Color(250/255.0f, 219/255.0f, 217/255.0f),
+			new Color(246/255.0f, 174/255.0f, 84/255.0f),
+			new Color(227/255.0f, 82/255.0f, 84/255.0f),
+			new Color(157/255.0f, 0, 72/255.0f),
+			new Color(178/255.0f, 80/255.0f, 26/255.0f),
+		},
+		{//10
+			new Color(203/255.0f, 227/255.0f, 185/255.0f), 
+			new Color(244/255.0f, 178/255.0f, 186/255.0f),
+			new Color(246/255.0f, 250/255.0f, 237/255.0f),
+			new Color(250/255.0f, 219/255.0f, 217/255.0f),
+			new Color(238/255.0f, 134/255.0f, 161/255.0f),
+			new Color(147/255.0f, 209/255.0f, 211/255.0f),
+			new Color(65/255.0f, 178/255.0f, 102/255.0f),
+		},
+		{//11
+			new Color(230/255.0f, 0, 62/255.0f), 
+			new Color(241/255.0f, 156/255.0f, 174/255.0f),
+			new Color(255/255.0f, 228/255.0f, 96/255.0f),
+			new Color(246/255.0f, 172/255.0f, 45/255.0f),
+			new Color(234/255.0f, 85/255.0f, 41/255.0f),
+			new Color(136/255.0f, 0, 68/255.0f),
+			new Color(200/255.0f, 25/255.0f, 60/255.0f),
+		},
+		{//12
+			new Color(214/255.0f, 139/255.0f, 185/255.0f), 
+			new Color(216/255.0f, 204/255.0f, 72/255.0f),
+			new Color(242/255.0f, 226/255.0f, 238/255.0f),
+			new Color(236/255.0f, 177/255.0f, 207/255.0f),
+			new Color(124/255.0f, 159/255.0f, 211/255.0f),
+			new Color(135/255.0f, 82/255.0f, 157/255.0f),
+			new Color(177/255.0f, 164/255.0f, 14/255.0f),
+		},
+		{//13
+			new Color(234/255.0f, 85/255.0f, 41/255.0f), 
+			new Color(237/255.0f, 121/255.0f, 134/255.0f),
+			new Color(237/255.0f, 241/255.0f, 176/255.0f),
+			new Color(136/255.0f, 200/255.0f, 151/255.0f),
+			new Color(48/255.0f, 113/255.0f, 184/255.0f),
+			new Color(127/255.0f, 199/255.0f, 239/255.0f),
+			new Color(255/255.0f, 228/255.0f, 96/255.0f),
+		},
+		{//14
+			new Color(158/255.0f, 79/255.0f, 30/255.0f), 
+			new Color(234/255.0f, 85/255.0f, 80/255.0f),
+			new Color(255/255.0f, 232/255.0f, 158/255.0f),
+			new Color(112/255.0f, 200/255.0f, 218/255.0f),
+			new Color(110/255.0f, 96/255.0f, 168/255.0f),
+			new Color(238/255.0f, 134/255.0f, 167/255.0f),
+			new Color(77/255.0f, 187/255.0f, 170/255.0f),
+		},
+		{//15
+			new Color(158/255.0f, 79/255.0f, 30/255.0f), 
+			new Color(186/255.0f, 141/255.0f, 190/255.0f),
+			new Color(254/255.0f, 235/255.0f, 200/255.0f),
+			new Color(245/255.0f, 175/255.0f, 125/255.0f),
+			new Color(125/255.0f, 70/255.0f, 152/255.0f),
+			new Color(138/255.0f, 199/255.0f, 130/255.0f),
+			new Color(98/255.0f, 94/255.0f, 168/255.0f),
+		},
+		{//16
+			new Color(241/255.0f, 141/255.0f, 0), 
+			new Color(243/255.0f, 168/255.0f, 187/255.0f),
+			new Color(255/255.0f, 233/255.0f, 169/255.0f),
+			new Color(247/255.0f, 185/255.0f, 120/255.0f),
+			new Color(232/255.0f, 82/255.0f, 152/255.0f),
+			new Color(236/255.0f, 110/255.0f, 116/255.0f),
+			new Color(166/255.0f, 44/255.0f, 56/255.0f),
+		},
+		{//17
+			new Color(241/255.0f, 141/255.0f, 0), 
+			new Color(149/255.0f, 183/255.0f, 225/255.0f),
+			new Color(226/255.0f, 237/255.0f, 186/255.0f),
+			new Color(241/255.0f, 158/255.0f, 194/255.0f),
+			new Color(73/255.0f, 188/255.0f, 189/255.0f),
+			new Color(83/255.0f, 92/255.0f, 168/255.0f),
+			new Color(232/255.0f, 68/255.0f, 120/255.0f),
+		},
+		{//18
+			new Color(249/255.0f, 194/255.0f, 111/255.0f), 
+			new Color(160/255.0f, 216/255.0f, 239/255.0f),
+			new Color(237/255.0f, 241/255.0f, 187/255.0f),
+			new Color(244/255.0f, 180/255.0f, 208/255.0f),
+			new Color(107/255.0f, 200/255.0f, 242/255.0f),
+			new Color(168/255.0f, 209/255.0f, 118/255.0f),
+			new Color(126/255.0f, 152/255.0f, 206/255.0f),
+		},
+		{//19
+			new Color(30/255.0f, 184/255.0f, 206/255.0f), 
+			new Color(253/255.0f, 208/255.0f, 0),
+			new Color(255/255.0f, 238/255.0f, 125/255.0f),
+			new Color(238/255.0f, 134/255.0f, 167/255.0f),
+			new Color(234/255.0f, 85/255.0f, 20/255.0f),
+			new Color(156/255.0f, 95/255.0f, 163/255.0f),
+			new Color(183/255.0f, 212/255.0f, 66/255.0f),
+		},
+		{//20
+			new Color(235/255.0f, 97/255.0f, 111/255.0f), 
+			new Color(216/255.0f, 204/255.0f, 72/255.0f),
+			new Color(237/255.0f, 240/255.0f, 164/255.0f),
+			new Color(239/255.0f, 132/255.0f, 92/255.0f),
+			new Color(52/255.0f, 137/255.0f, 202/255.0f),
+			new Color(141/255.0f, 196/255.0f, 74/255.0f),
+			new Color(246/255.0f, 191/255.0f, 215/255.0f),
+		},
+		{//21
+			new Color(219/255.0f, 90/255.0f, 134/255.0f), 
+			new Color(216/255.0f, 204/255.0f, 72/255.0f),
+			new Color(247/255.0f, 237/255.0f, 161/255.0f),
+			new Color(238/255.0f, 134/255.0f, 161/255.0f),
+			new Color(133/255.0f, 116/255.0f, 0),
+			new Color(95/255.0f, 193/255.0f, 199/255.0f),
+			new Color(0, 176/255.0f, 150/255.0f),
+		},
+		{//22
+			new Color(207/255.0f, 220/255.0f, 41/255.0f), 
+			new Color(145/255.0f, 210/255.0f, 228/255.0f),
+			new Color(256/255.0f, 250/255.0f, 188/255.0f),
+			new Color(236/255.0f, 177/255.0f, 207/255.0f),
+			new Color(136/255.0f, 171/255.0f, 218/255.0f),
+			new Color(185/255.0f, 121/255.0f, 177/255.0f),
+			new Color(233/255.0f, 84/255.0f, 113/255.0f),
+		},
+		{//23
+			new Color(166/255.0f, 97/255.0f, 163/255.0f), 
+			new Color(228/255.0f, 234/255.0f, 141/255.0f),
+			new Color(207/255.0f, 220/255.0f, 41/255.0f),
+			new Color(197/255.0f, 154/255.0f, 197/255.0f),
+			new Color(127/255.0f, 60/255.0f, 132/255.0f),
+			new Color(227/255.0f, 108/255.0f, 165/255.0f),
+			new Color(191/255.0f, 48/255.0f, 140/255.0f),
+		},
+		{//24
+			new Color(21/255.0f, 174/255.0f, 103/255.0f), 
+			new Color(225/255.0f, 163/255.0f, 199/255.0f),
+			new Color(242/255.0f, 226/255.0f, 229/255.0f),
+			new Color(180/255.0f, 216/255.0f, 151/255.0f),
+			new Color(226/255.0f, 95/255.0f, 158/255.0f),
+			new Color(110/255.0f, 96/255.0f, 168/255.0f),
+			new Color(141/255.0f, 65/255.0f, 137/255.0f),
+		},
+		{//25
+			new Color(144/255.0f, 102/255.0f, 169/255.0f), 
+			new Color(157/255.0f, 201/255.0f, 42/255.0f),
+			new Color(231/255.0f, 221/255.0f, 238/255.0f),
+			new Color(167/255.0f, 211/255.0f, 151/255.0f),
+			new Color(166/255.0f, 116/255.0f, 176/255.0f),
+			new Color(251/255.0f, 216/255.0f, 181/255.0f),
+			new Color(239/255.0f, 132/255.0f, 101/255.0f),
+		},
+		{//26
+			new Color(0, 128/255.0f, 119/255.0f), 
+			new Color(222/255.0f, 114/255.0f, 145/255.0f),
+			new Color(240/255.0f, 194/255.0f, 208/255.0f),
+			new Color(122/255.0f, 191/255.0f, 197/255.0f),
+			new Color(191/255.0f, 13/255.0f, 91/255.0f),
+			new Color(183/255.0f, 115/255.0f, 166/255.0f),
+			new Color(159/255.0f, 52/255.0f, 127/255.0f),
+		},
+		{//27
+			new Color(0, 123/255.0f, 187/255.0f), 
+			new Color(234/255.0f, 97/255.0f, 153/255.0f),
+			new Color(211/255.0f, 230/255.0f, 246/255.0f),
+			new Color(238/255.0f, 135/255.0f, 180/255.0f),
+			new Color(223/255.0f, 16/255.0f, 121/255.0f),
+			new Color(238/255.0f, 238/255.0f, 141/255.0f),
+			new Color(201/255.0f, 213/255.0f, 0),
+		},
+		{//28
+			new Color(238/255.0f, 134/255.0f, 167/255.0f), 
+			new Color(195/255.0f, 226/255.0f, 204/255.0f),
+			new Color(224/255.0f, 240/255.0f, 226/255.0f),
+			new Color(246/255.0f, 190/255.0f, 200/255.0f),
+			new Color(246/255.0f, 172/255.0f, 45/255.0f),
+			new Color(234/255.0f, 97/255.0f, 137/255.0f),
+			new Color(82/255.0f, 185/255.0f, 141/255.0f),
+		},
+		{//29
+			new Color(236/255.0f, 110/255.0f, 116/255.0f), 
+			new Color(254/255.0f, 233/255.0f, 180/255.0f),
+			new Color(246/255.0f, 189/255.0f, 184/255.0f),
+			new Color(233/255.0f, 83/255.0f, 131/255.0f),
+			new Color(216/255.0f, 34/255.0f, 13/255.0f),
+			new Color(240/255.0f, 131/255.0f, 31/255.0f),
+			new Color(105/255.0f, 14/255.0f, 40/255.0f),
+		},
+
 	};
 
-//	static public int[] RotationArray =
-//	{
-//		-15,
-//		-10,
-//		5,
-//		0,
-//		5,
-//		10,
-//		15,
-//	};
+
 	static public int[] RotationArray =
 	{
 		0,
@@ -240,25 +492,108 @@ public class study : MonoBehaviour {
 		}
 	};
 
-	void RangeColorArray()
+	Color getColor()
 	{
-		int i = 0;
-		for ( i = colorArray.Length - 1; i > 0; i--)
+		int index = 0;
+		//获得色彩
+		if(mLevel <= 5 )
 		{
-			int p = Random.Range(0, i);
-			Color temp = colorArray[p];
-			colorArray[p] = colorArray[i];
-			colorArray[i] = temp;
+			//如果等级小于等于5级，就在colorArray[0]中选择颜色
+			//一级是三种色彩，2级4种，3级5种，4级6种 5级7种
+			if(mLevel == 1)
+			{
+				index = Random.Range(0, 3);
+				return colorArray[0,index];
+
+			}
+			else if(mLevel == 2)
+			{
+				index = Random.Range(0, 4);
+				return colorArray[0, index];
+			}
+			else if(mLevel == 3)
+			{
+				index = Random.Range(0, 5);
+				return colorArray[0, index];
+			}
+			else if(mLevel == 4)
+			{
+				index = Random.Range(0, 6);
+				return colorArray[0, index];
+			}
+			else if(mLevel == 5)
+			{
+				index = Random.Range(0, 7);
+				return colorArray[0, index];
+			}
+			else
+			{
+				index = Random.Range(0, 3);
+				return colorArray[0, index];
+			}
+
+		}
+		else
+		{
+			//大于5级，就每级就是一个colorArray[2...]中的一个元素
+			//先出5中颜色，当有了消除数后，再从7个颜色中选
+			int range = mLevel - 5;
+			if(range >= colorArray.Length) range = colorArray.Length - 1;
+			if(DestroyCountAll == 0)
+			{
+				//消球数为0，就从前几种色中选择
+				if(mLevel < 10)
+				{
+					index = Random.Range(0, 4);
+					return colorArray[range, index];
+				}
+				else if(mLevel < 15)
+				{
+					index = Random.Range(0, 5);
+					return colorArray[range, index];
+				}
+				else if(mLevel < 20)
+				{
+					index = Random.Range(0, 6);
+					return colorArray[range, index];
+				}
+				else
+				{
+					index = Random.Range(0, 7);
+					return colorArray[range, index];
+				}
+
+
+			}
+			else
+			{
+				//消球数大于0， 就从7色中选择
+				index = Random.Range(0, 7);
+				return colorArray[range, index];
+			}
 		}
 
-		for ( i = RotationArray.Length - 1; i > 0; i--)
-		{
-			int p = Random.Range(0, i);
-			int temp = RotationArray[p];
-			RotationArray[p] = RotationArray[i];
-			RotationArray[i] = temp;
-		}
 	}
+
+//	void RangeColorArray()
+//	{
+//		int i = 0;
+//		for ( i = colorArray.Length - 1; i > 0; i--)
+//		{
+//			int p = Random.Range(0, i);
+//			Color temp = colorArray[p];
+//			colorArray[p] = colorArray[i];
+//			colorArray[i] = temp;
+//		}
+//
+//		for ( i = RotationArray.Length - 1; i > 0; i--)
+//		{
+//			int p = Random.Range(0, i);
+//			int temp = RotationArray[p];
+//			RotationArray[p] = RotationArray[i];
+//			RotationArray[i] = temp;
+//		}
+//	}
 
 
 	// Use this for initialization
@@ -267,13 +602,25 @@ public class study : MonoBehaviour {
 		GameObject StartButton = GameObject.Find ("Start");
 		UIEventListener.Get(StartButton).onClick = OnStartClick;
 
-		mEndPanel = GameObject.Find ("EndPanel");
-		mBackGroud = GameObject.Find ("black_bg"); //背景图
-
-		GameInit();
+		mEndPanel 			= GameObject.Find ("EndPanel");
+		mBackGroud 			= GameObject.Find ("black_bg"); //背景图
+		ScoreLabel 			= GameObject.Find ("ScoreLabel").GetComponent<UILabel>();
+		ProgressBar 		= GameObject.Find ("BackgroundProgress").GetComponent<UIProgressBar> ();
+		mDestroyCubeCount 	= GameObject.Find ("DestroyCubeCount").GetComponent<UILabel>();
+//		mDistanceLabel		= GameObject.Find ("Distance").GetComponent<UILabel>();
+		GameInit();	//游戏初始化
 
 //		fs = new FileStream ("color_calculate.txt", FileMode.OpenOrCreate);
 //		sw = new StreamWriter (fs);
+
+		//计算ScorePanel在world世界中的位置
+		Camera worldCamera = NGUITools.FindCameraForLayer(gridArray[4, 4].cube.gameObject.layer);
+		Camera guiCamera = NGUITools.FindCameraForLayer(GameObject.Find("Score_cube").gameObject.layer);
+
+		mScorePanelPos = guiCamera.WorldToScreenPoint(GameObject.Find("Score_cube").transform.position);
+		mScorePanelPos = worldCamera.ScreenToWorldPoint(mScorePanelPos);
+		mScorePanelPos.z = -1;
+		Debug.Log("world pos is " + mScorePanelPos);
 
 	}
 	
@@ -281,6 +628,10 @@ public class study : MonoBehaviour {
 	void Update () {
 
 	if(!mbGameing) return;
+
+	mDestroyCubeCount.text = string.Format("{0}/{1}", sDestroyCubeCount, LevelCount);
+
+	if(mbPlayLevelUp) return;
 
 		if(DeltaTime < 0)
 		{
@@ -294,7 +645,7 @@ public class study : MonoBehaviour {
 		DeltaTime = DeltaTime + Time.deltaTime;
 		ProgressBar.value = (MaxTime-DeltaTime)/MaxTime;
 
-		if(ProgressBar.value < 0.0001f)
+		if((ProgressBar.value < 0.0001f) && (DestroyCountAll < LevelCount))
 		{
 			//小于0.1%的时候退出
 			mbGameing = false;
@@ -307,51 +658,8 @@ public class study : MonoBehaviour {
 			NGUITools.SetActive(mBackGroud, true);
 		}
 
-//		if (DestroyCubeCount <  mOneLevelCount ) 
-//		{
-//			if(IsOneStep == false)
-//			{
-//				rangeMax  = rangeMax < colorArray.Length ? rangeMax+1 : colorArray.Length;
-//				IsOneStep = true;
-//			}
-//
-//		}
-//		if (DestroyCubeCount >= mOneLevelCount && DestroyCubeCount < (mOneLevelCount + mSecondLevelCount))
-		if (DestroyCubeCount >= (mOneLevelCount + mSecondLevelCount) 
-		    && DestroyCubeCount < (mOneLevelCount + mSecondLevelCount + mThreeLevelCount))
-		{
-			if(IsSecondStep == false)
-			{
-				rangeMax  = rangeMax < colorArray.Length ? rangeMax+1 : colorArray.Length;
-				IsSecondStep = true;
-			}
-		}
-		else if (DestroyCubeCount >= (mOneLevelCount + mSecondLevelCount + mThreeLevelCount) 
-		         && DestroyCubeCount < (mOneLevelCount + mSecondLevelCount + mThreeLevelCount + mFouthLevelCount))
-		{
-			if(IsThreeStep == false)
-			{
-				rangeMax  = rangeMax < colorArray.Length ? rangeMax+1 : colorArray.Length;
-				IsThreeStep = true;
-			}
-		}
-		else if(DestroyCubeCount >= (mOneLevelCount + mSecondLevelCount + mThreeLevelCount + mFouthLevelCount) 
-		&& DestroyCubeCount < (mOneLevelCount + mSecondLevelCount + mThreeLevelCount + mFouthLevelCount + mFifthMultiValue))
-		{
-			if(IsFouthStep == false)
-			{
-				rangeMax  = rangeMax < colorArray.Length ? rangeMax+1 : colorArray.Length;
-				IsFouthStep = true;
-			}
-		}
-		else if(DestroyCubeCount >= (mOneLevelCount + mSecondLevelCount + mThreeLevelCount + mFouthLevelCount + mFifthMultiValue))
-		{
-			if(IsFifthStep == false)
-			{
-				rangeMax  = rangeMax < colorArray.Length ? rangeMax+1 : colorArray.Length;
-				IsFifthStep = true;
-			}
-		}
+//		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
+		
 
 
 		int nbTouches = iPhoneInput.touchCount;
@@ -372,28 +680,48 @@ public class study : MonoBehaviour {
 
 				//calculate launch power
 				Vector2 deltaVector = endTouch.position - startTouch.position;
-				float deltaTime = endTouch.timeDelta - startTouch.timeDelta;
-//				deltaVector.Normalize();
-				if(deltaTime > 0.3f ) deltaTime = 0.3f;
-				if(deltaTime < 0.1f	) deltaTime = 0.1f;
-				deltaVector *= deltaTime;
+//				Vector2 temp = deltaVector;
+				float Distance = Vector2.Distance(endTouch.position, startTouch.position);
+				if(Distance < 25) return;
+//				float ratio = mDesignScreenHeight / Screen.height;
+//				Distance *= ratio;
+				float MaxDis = 350;
+				float MinDis = 50;
+				if(Distance < MinDis) Distance = MinDis;
+				if(Distance > MaxDis) Distance = MaxDis;
+				deltaVector.Normalize();
 
-//				if(deltaVector.x < 5) deltaVector.x = 5;
-//				if(deltaVector.x > 40) deltaVector.x = 40;
-//				if(deltaVector.y < 5) deltaVector.y = 5;
-//				if(deltaVector.y > 40) deltaVector.y = 40;
-				initVelocity = new Vector3(deltaVector.x, deltaVector.y, 10.0f);
-				Debug.Log("initVelocity is " + initVelocity);
+				//30是速度
+//				deltaVector.x = deltaVector.x * 20;
+//				deltaVector.y = deltaVector.y * 20;
+//
+//
+//				initConstantForce = new Vector3(deltaVector.x, deltaVector.y, 0);
+//				Debug.Log("initVelocity is " + initConstantForce);
+
+				//公式
+				//Force = 2s/(t*t);	
+				float s = 2.5f + (Distance-50) * 0.033f;
+//				if(s > 12.5) s = 12.5f;
+				if(s > 11) s = 11;
+
+				//0.3是bullet下落的时间
+				mConstantForceZ = ( 2 * s) / (0.62f * 0.62f);
+
+				initConstantForce = new Vector3(deltaVector.x * mConstantForceZ , deltaVector.y * mConstantForceZ, 0);
+				Debug.Log("mConstantForceZ is " + mConstantForceZ);
+				Debug.Log("constant Force is " + initConstantForce);
+//				Debug.Log("s is " + s);
+//				float t = s/20.0f;
+//				mConstantForceZ = (2 * 1.1f) / (t * t); //1.1f是bullet球在
+				
 				//fire bullet
-				FireBullet ();
+				FireBullet ();	
 				break;
 			}
 		}
 
-		ScoreLabel.text = string.Format ("{0}", DestroyCubeScore);
-//		ScoreLabel.text = "hello world";
 	}
-
 
 	//游戏初始化函数
 	void GameInit()
@@ -401,11 +729,18 @@ public class study : MonoBehaviour {
 		//游戏开始
 		mbGameing = true;
 
-		rangeMax = 3; 
-
+		rangeMax = 3;	//色彩范围初始化	 
+		//时间变化量
+		DeltaTime = 0;
+		//一次消除的数量置0
+		DestroyCountOnce = 0;
+		DestroyCountAll = 0; 	//一关消球的数量
+		sDestroyCubeCount = 0;
+		mLevel = 1;	//初始化等级
+		mIndexXDestoryLevelUp = 0;
 		//随机颜色
-		RangeColorArray ();
-
+//		RangeColorArray ();
+		
 		int x = 0;
 		for (; x < maxX; x++) 
 		{
@@ -432,10 +767,11 @@ public class study : MonoBehaviour {
 				if(cubObj != null)
 				{
 //					int index = Random.Range(0, colorArray.Length);
-					int index = Random.Range(0, rangeMax);
+//					int index = Random.Range(0, rangeMax);
 					Renderer render = cubObj.GetComponent<Renderer>();
-					render.material.color = colorArray[index];
-					
+					render.material.color = getColor();
+//					Debug.Log("color is {0}"+ render.material.color);
+
 					cubObj.indexX = x;
 					cubObj.indexY = y;
 					gridArray[x, y].cube = cubObj;
@@ -451,43 +787,22 @@ public class study : MonoBehaviour {
 			DestroyObject(objBullet.gameObject);
 			objBullet = null;
 		}
-
 		Invoke ("createNewBullet", 0.1f);
-//		objBullet = (bullet)Instantiate(bulletObject, new Vector3(4.9f, -2, -2), transform.rotation);
-//		int indexBulletColor = Random.Range(0, rangeMax);
-//		Renderer renderBullet = objBullet.GetComponent<Renderer>();
-//		renderBullet.material.color = colorArray[indexBulletColor];
+
+		//已发射的球初始化
+		if(objBulletFired != null)
+		{
+			DestroyObject(objBulletFired.gameObject);
+			objBulletFired = null;
+		}
 
 		//初始化UI显示
 		DestroyCubeScore = 0;
 		DestroyCubeCount = 0;
-		ScoreLabel = GameObject.Find ("ScoreLabel").GetComponent<UILabel>();
-		ScoreLabel.text = string.Format ("{0}", DestroyCubeScore);
-		ProgressBar = GameObject.Find ("BackgroundProgress").GetComponent<UIProgressBar> ();
 
-		//初始化进阶基数
-		mAdvanceBaseCount = mInitAdvanceBaseCount - Random.Range(-mInitDeltaCount, mInitDeltaCount);
-		mOneLevelCount 		= 0;	//进阶一级需要的消除数量
-		mSecondLevelCount 	= mAdvanceBaseCount / mOneMultiValue;	//进阶二级需要的消除数量
-		mThreeLevelCount 	= mAdvanceBaseCount / mSecondMultiValue;	//进阶三级需要的消除刷量
-		mFouthLevelCount 	= mAdvanceBaseCount / mThreeMultiValue;	//进阶四级需要的消除数量
-		mFifthLevelCount 	= mAdvanceBaseCount / mFouthLevelCount;	//进阶五级需要的消除数量
-
-		//初始化进阶标志
-		IsOneStep 		= true;
-		IsSecondStep 	= false;	
-		IsThreeStep 	= false;	
-		IsFouthStep		= false;	
-		IsFifthStep 	= false;	
-
-		//时间变化量
-		DeltaTime = 0;
-
-		//一次消除的数量置0
-		DestroyCountOnce = 0;
-
-
-
+		ScoreLabel.text = string.Format ("Level:{0}", mLevel);
+//		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
+		mDestroyCubeCount.text = string.Format("{0}/{1}", sDestroyCubeCount, LevelCount);
 		//关闭结束界面
 		NGUITools.SetActive(mEndPanel, false);
 		NGUITools.SetActive(mBackGroud, false);
@@ -496,8 +811,8 @@ public class study : MonoBehaviour {
 		mCollisionIndexX = invalidIndex;
 		mCollisionIndexY = invalidIndex;
 
-		initVelocity = Vector3.zero;
-
+		initConstantForce = Vector3.zero;
+	
 	}	
 
 
@@ -505,17 +820,19 @@ public class study : MonoBehaviour {
 	{
 		if (objBullet != null)
 		{
-//			Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
+			Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
 //			rigid.isKinematic = false;
-//			rigid.velocity = initVelocity;
-//			rigid.AddForce(initVelocity);
+			//z == 2f 是设定了下落时间为0.5秒，下落1个单位， v=s/t 等于2
+			rigid.velocity = new Vector3(0,0,1.667f);
+
 			ConstantForce constantForce = objBullet.GetComponent<ConstantForce>();
-			constantForce.relativeForce = initVelocity;
+			constantForce.relativeForce = initConstantForce;
+
+			objBulletFired = objBullet;
+			objBullet = null;
+
+			Invoke ("createNewBullet", 0.3f);
 		}
-
-		objBullet = null;
-		Invoke ("createNewBullet", 0.5f);
-
 	}
 
 	void createNewBullet()
@@ -525,11 +842,10 @@ public class study : MonoBehaviour {
 			return;
 		}
 						
-		objBullet = (bullet)Instantiate(bulletObject, new Vector3(4.9f, -2, -2), transform.rotation);
+		objBullet = (bullet)Instantiate(bulletObject, mBulletInitPos, transform.rotation);
 
-		int index = Random.Range(0, rangeMax);
 		Renderer render = objBullet.GetComponent<Renderer>();
-		render.material.color = colorArray[index];
+		render.material.color = getColor();
 	}
 
 	public void DealCollision(int indexX, int indexY, Color materialColor)
@@ -563,6 +879,7 @@ public class study : MonoBehaviour {
 
 			indexDestory = 0;
 			DestroyCountOnce = 0;
+//			Debug.Log("DestroyCountOnce clear");
 			dealDestroyCube();
 
 
@@ -573,23 +890,25 @@ public class study : MonoBehaviour {
 		}
 	}
 
-	cube findCube(int x, int y)
+	cube findCube(int x, int y, out int finalY)
 	{
 		if (x >= maxX || y >= maxY) 
 		{
+			finalY = invalidIndex;
 			return null;
 		}
 		
 		if (null != gridArray[x,y].cube) 
 		{
 			//have, move
+			finalY = y;
 			return gridArray[x,y].cube;
 			
 		} 
 		else
 		{
 			//no, go on find
-			return findCube(x, y+1);
+			return findCube(x, y+1, out finalY);
 		}
 		
 	}
@@ -606,7 +925,10 @@ public class study : MonoBehaviour {
 		{
 			return;
 		}
-		
+		if(gridArray [x, y].cube == null)
+		{
+			return;
+		}
 		if (gridArray [x, y].cube.IsKilled) 
 		{
 			return;
@@ -633,8 +955,8 @@ public class study : MonoBehaviour {
 //			Debug.Log("Destroy cube index x is:"+x+" y is:"+y);
 			gridArray[x, y].cube.IsKilled = true;
 			//destroy count +1 
-			DestroyCubeCount++;
-
+//			DestroyCubeCount++;
+//			Debug.Log("DestroyCubeCount:"+DestroyCubeCount);
 //			DeltaTime -= 0.5f;
 
 			// [x-1, y] 左
@@ -654,118 +976,159 @@ public class study : MonoBehaviour {
 		}
 	}
 
-	void caluDestroyScore()
+	//晋级的过场效果播放
+	void LevelUpPlay()
 	{
-		int currScore = 0;
-		float addTime = 0;
-		//算出的数值太大，放小10倍
-		currScore = (rangeMax * (1+DestroyCountOnce)*(DestroyCountOnce/2))/10;
-		addTime = DestroyCountOnce * mBaseTime;
-
-		if(IsFifthStep)
+//		Debug.Log("mIndexXDestoryLevelUp is "+mIndexXDestoryLevelUp);
+		if(mbPlayLevelUp)
 		{
-			//已进阶到5级，按五级计算
-			currScore *= mFifthMultiValue;
-
-			//时间补偿
-			addTime *= mFifthMultiValue;
-		}
-		else
-		{
-			if(IsFouthStep)
+			//表现为一层一层的消除cube
+			if(mIndexXDestoryLevelUp < 0 || mIndexXDestoryLevelUp >= maxX)
 			{
-				//已经进阶到第四级
-				currScore *= mFouthMultiValue;
+				mbPlayLevelUp = false;
+				mIndexXDestoryLevelUp = 0;
+				mLevel++;					//晋级等级+1, 要表现一下UI效果
+				//如果每关的消球数量大于关卡要求的数量，就晋级
+			 	DestroyCountAll		= 0;	//每关的消球数量清零
+			 	sDestroyCubeCount 	= 0;
+			 	DestroyCountOnce	= 0;	//一次消球的数量清零
+				DeltaTime		 	= 0;	//重置倒计时时间
+				ScoreLabel.text = string.Format ("Level:{0}", mLevel);
 
-				//时间补偿
-				addTime *= mFouthMultiValue;
+				//转一下等级牌
+				iTween.PunchRotation( ScoreLabel.gameObject, iTween.Hash("y", 180, "time", 1.0f));
+
+				Debug.Log("LevelUpPlay's upFindCube is called");
+				//替换空缺的cube
+				Invoke ("upFindCube", 0.5f);
 			}
 			else
 			{
-				if(IsThreeStep)
+				for (int x = 0; x < maxX; x++) 
 				{
-					//已经进阶到第三级
-					currScore *= mThreeMultiValue;
-
-					//时间补偿
-					addTime *= mThreeMultiValue;
-				}
-				else
-				{
-					if(IsSecondStep)
+					if(gridArray[x,mIndexXDestoryLevelUp].cube != null)
 					{
-						//已经进阶到第二级
-						currScore *= mSecondMultiValue;
-
-						//时间补偿
-						addTime *= mSecondMultiValue;
-					}
-					else 
-					{
-						if(IsOneStep)
-						{
-							//第一级 
-
-						}
+						Destroy(gridArray[x,mIndexXDestoryLevelUp].cube.gameObject);
+						gridArray[x, mIndexXDestoryLevelUp].cube = null;
 					}
 				}
+
+				mIndexXDestoryLevelUp++;
+
+				Invoke ("LevelUpPlay", 0.1f);
 			}
 		}
 
-		DestroyCubeScore += currScore;
+	}
 
-		//计算时间
-		DeltaTime -= addTime;
+
+	void caluDestroyScore()
+	{
+		//要求20秒消除30个球
+		//每消除30个就可以进一级
+		 if(DestroyCountAll >= LevelCount)
+		 {
+			mbPlayLevelUp		= true;	//播放升级动画的标志置为true
+
+			Invoke("LevelUIEffect", 1.0f); //cube的飞入动画播完，播放相机震动动画
+		 	
+		 }
+		 else
+		 {
+	//		Invoke ("upFindCube", 0.2f);
+		 }
+
 	}
 
 	void dealDestroyCube()
 	{
 		if (indexDestory < 0 || indexDestory >= maxX) 
 		{
-			//计算本次消除的得分
-			caluDestroyScore();
-
-			Invoke ("upFindCube", 0.2f);
-			return;
-		}
-
-		bool isSkip = true;
-
-		for (int y = 0; y < maxY; y++) 
-		{
-			if(gridArray[indexDestory,y].cube != null)
+			if(DestroyCountAll < LevelCount)
 			{
-				if(	gridArray[indexDestory,y].cube.IsKilled )
-				{
-					Destroy(gridArray[indexDestory,y].cube.gameObject);
-
-					DestroyCountOnce++;
-
-					isSkip = false;
-				}
+				Invoke ("upFindCube", 0.5f);
 			}
 			else
 			{
-//				Debug.Log(" null cube index x is:"+indexDestory+" y is:"+y);
+				//计算本次消除的得分
+				caluDestroyScore();
 			}
 
 		}
-
-		indexDestory ++;
-		if (isSkip) 
-		{
-			Invoke ("dealDestroyCube", 0);
-		}
 		else
 		{
-			Invoke ("dealDestroyCube", 0.1f);
-		}
+			bool isSkip = true;
 
+			for (int y = 0; y < maxY; y++) 
+			{
+				if(gridArray[indexDestory,y].cube != null)
+				{
+					if(	gridArray[indexDestory,y].cube.IsKilled )
+					{
+
+//						Destroy(gridArray[indexDestory,y].cube.gameObject);
+				
+						Hashtable args = new Hashtable();
+						float dis = Mathf.Abs(mScorePanelPos.y - gridArray[indexDestory, y].cube.transform.position.y);
+						float deltaY = dis / 2.0f;
+
+						float offsetX;
+						if(indexDestory <= 4)
+						{
+							offsetX = gridArray[indexDestory, y].cube.transform.position.x - 1;
+						}
+						else 
+						{
+							offsetX = gridArray[indexDestory, y].cube.transform.position.x + 1;
+						}
+
+						Vector3[] paths = 
+						{
+							new Vector3(offsetX, gridArray[indexDestory, y].cube.transform.position.y+deltaY, -2),
+							mScorePanelPos,
+						};
+
+//	
+						iTween.ScaleTo(gridArray[indexDestory, y].cube.gameObject,
+							iTween.Hash("scale", new Vector3(0.3f, 0.3f, 0.3f), "easetype", iTween.EaseType.easeInSine,
+								"time",1.0f));
+						iTween.RotateAdd(gridArray[indexDestory, y].cube.gameObject,iTween.Hash("amount", new Vector3(60, 120, 60), "easetype", iTween.EaseType.easeInSine,
+							"time",1.0f));
+						args.Add("path", paths);
+						args.Add("time",1.0f);
+						args.Add("easetype", iTween.EaseType.easeInSine);
+						args.Add("oncomplete", "gotoScorePanelAnimEnd");
+						iTween.MoveTo(gridArray[indexDestory, y].cube.gameObject, args);
+					
+						gridArray[indexDestory, y].cube = null;
+
+						DestroyCountOnce++;
+						DestroyCountAll++;
+	//					Debug.Log("DestroyCountOnce:"+DestroyCountOnce);
+						isSkip = false;
+					}
+				}
+				else
+				{
+	//				Debug.Log(" null cube index x is:"+indexDestory+" y is:"+y);
+				}
+			}
+
+			indexDestory ++;
+			if (isSkip) 
+			{
+				Invoke ("dealDestroyCube", 0);
+			}
+			else
+			{
+				Invoke ("dealDestroyCube", 0.05f);
+			}
+		}
 	}
 
 	void upFindCube()
 	{
-//		Debug.Log("record index X is "+recordIndexX+";record index Y is"+recordIndexY);
+		Debug.Log("upFindCube is called");
 		int x = 0;
 		int y = 0;
 		int blankCount = 0;
@@ -783,8 +1146,9 @@ public class study : MonoBehaviour {
 				
 				if( null == gridArray[x, y].cube)
 				{
-					cube objectCube = findCube(x, y);
-					//				Debug.Log("findCube x:" + indexX + " y:" + y);
+					int final_y;
+					cube objectCube = findCube(x, y, out final_y);
+//					Debug.Log("final_y is "+ final_y);
 					
 					if(objectCube != null)
 					{
@@ -799,8 +1163,18 @@ public class study : MonoBehaviour {
 						
 						Hashtable args = new Hashtable();
 						//						args.Add("time",1f*(originY - y));
-						args.Add("time", cubeMoveTime);
+						if(final_y != invalidIndex)
+						{
+							args.Add("time", cubeMoveTimeMin*(final_y-y));
+//							Debug.Log("move time  is "+ (final_y-y));
+						}
+						else
+						{
+							args.Add("time", cubeMoveTime);
+							Debug.Log("move time  is invalid");
+						}
 						//						args.Add("speed",5f);
+						args.Add("easetype", iTween.EaseType.easeInSine);
 						args.Add("oncomplete", "AnimationEnd");
 						args.Add("x",gridArray[x, y].pos.x);
 						args.Add("y",gridArray[x, y].pos.y);
@@ -817,10 +1191,11 @@ public class study : MonoBehaviour {
 						Vector3 vec3 = new Vector3(gridArray[x, y].pos.x, generateY+(intervalPos*blankCount), 0);
 						cube newCube = (cube)Instantiate(cubeObject, vec3, transform.rotation);
 
-						int index = Random.Range(0, rangeMax);
+//						int index = Random.Range(0, rangeMax);
 						Renderer render = newCube.GetComponent<Renderer>();
-						render.material.color = colorArray[index];
-
+//						render.material.color = colorArray[index];
+						render.material.color = getColor();
+						render.enabled = false;
 //						newCube.transform.Rotate(new Vector3(0, RotationArray[index], 0));
 
 						gridArray[x, y].cube = newCube;
@@ -831,8 +1206,9 @@ public class study : MonoBehaviour {
 						
 						Hashtable args = new Hashtable();
 						//args.Add("time",1f* (generateY - y));
-						args.Add("time",cubeMoveTime);
+						args.Add("time",cubeMoveTimeMin * blankCount);
 						//						args.Add("speed",5f);
+						args.Add("easetype", iTween.EaseType.easeInSine);
 						args.Add("oncomplete", "AnimationEnd");
 						args.Add("x",gridArray[x, y].pos.x);
 						args.Add("y",gridArray[x, y].pos.y);
@@ -932,6 +1308,18 @@ public class study : MonoBehaviour {
 		if(mIsHaveCollision)
 		{
 			DealCollision(mCollisionIndexX, mCollisionIndexY, mCollosionBulletColor);
+
+			//发生了bullet和cube的碰撞，就把飞出去的球的引用取消掉
+			objBulletFired = null;
 		}
+	}
+
+	void LevelUIEffect()
+	{
+		Debug.Log("LevelUIEffect is called");
+
+		iTween.ShakePosition(Camera.main.gameObject, iTween.Hash("y", 0.3f, "time", 1.0f));
+
+		Invoke ("LevelUpPlay", 1.0f); //震动相机播完，升级动画
 	}
 }

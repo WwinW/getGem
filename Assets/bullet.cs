@@ -5,21 +5,24 @@ public class bullet : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
-		UIRoot root = GameObject.FindObjectOfType<UIRoot> ();
-		if (root != null) 
-		{
-			float s = (float)root.activeHeight /Screen.height;
-			int height = Mathf.CeilToInt(Screen.height * s);
-			int width = Mathf.CeilToInt(Screen.width * s);
-			Debug.Log("height = " + height);
-			Debug.Log("width = " + width);
-		}
+
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
+		//创建出来的位置 Z轴-2， 到Z轴5的时候就销毁，在这个阶段，要逐渐缩小
+		//从1缩小到0.3， 缩小的总值是0.7
+		//transform.position.z == -1
+		//初始位置是-2
+		//初始位置缩放是1，找到一个比例，按照行进过程进行缩放。总行程是7，-1-（-2） = 1 1-（-2）= 3 0 - （-2）= 2 5-（-2）=7
+		 
+		float deltaZ = transform.position.z - study.mBulletInitPos.z;
+		float totalZ = 5 - study.mBulletInitPos.z;
+		float scale = deltaZ/totalZ;
+		
+		transform.localScale = new Vector3((1-0.7f*scale), (1-0.7f*scale), (1-0.7f*scale));
+
 		if (transform.position.z > 5) 
 		{
 			Destroy(this);

@@ -76,7 +76,7 @@ public class study : MonoBehaviour {
 	int mLevel = 1;		//玩家等级
 	public int LevelCount = 30; //每关的要求消球数量
 
-	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, -2);
+	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, 0);
 
 	float mDesignScreenHeight = 960.0f;
 
@@ -85,6 +85,13 @@ public class study : MonoBehaviour {
 	Vector3 mScorePanelPos; //cube记分牌在世界坐标中的位置
 
 	static public int sDestroyCubeCount = 0;
+
+	private LineRenderer ropeLineRenderer;	//线段渲染器
+
+	bool 	mBulletPickup = false; //子弹是否为弹弓状态
+
+	Vector3 mBulletFireDirection; 	//子弹飞出去的方向
+	float magnitude;
 
 	public class grid
 	{
@@ -606,8 +613,14 @@ public class study : MonoBehaviour {
 		mBackGroud 			= GameObject.Find ("black_bg"); //背景图
 		ScoreLabel 			= GameObject.Find ("ScoreLabel").GetComponent<UILabel>();
 		ProgressBar 		= GameObject.Find ("BackgroundProgress").GetComponent<UIProgressBar> ();
+		NGUITools.SetActive(ProgressBar.gameObject, false);
 		mDestroyCubeCount 	= GameObject.Find ("DestroyCubeCount").GetComponent<UILabel>();
 //		mDistanceLabel		= GameObject.Find ("Distance").GetComponent<UILabel>();
+		ropeLineRenderer	= GameObject.Find ("Rope").GetComponent<LineRenderer>();
+		ropeLineRenderer.material.color = new Color(1,0,0);
+		ropeLineRenderer.SetWidth(0.2f, 0.2f);
+		ropeLineRenderer.SetVertexCount(3);
+			
 		GameInit();	//游戏初始化
 
 //		fs = new FileStream ("color_calculate.txt", FileMode.OpenOrCreate);
@@ -643,13 +656,14 @@ public class study : MonoBehaviour {
 		}
 
 		DeltaTime = DeltaTime + Time.deltaTime;
-		ProgressBar.value = (MaxTime-DeltaTime)/MaxTime;
 
-		if((ProgressBar.value < 0.0001f) && (DestroyCountAll < LevelCount))
-		{
-			//小于0.1%的时候退出
-			mbGameing = false;
-		}
+//		ProgressBar.value = (MaxTime-DeltaTime)/MaxTime;
+//
+//		if((ProgressBar.value < 0.0001f) && (DestroyCountAll < LevelCount))
+//		{
+//			//小于0.1%的时候退出
+//			mbGameing = false;
+//		}
 
 		if(!mbGameing)
 		{
@@ -671,52 +685,94 @@ public class study : MonoBehaviour {
 			{
 			case iPhoneTouchPhase.Began:
 //				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
+
+				mBulletPickup = false;
 				startTouch = touch;
+				//处理弹簧
+				Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position.x, touch.position.y, 0));//把鼠标的点定义一个射线
+//				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;//光线投射碰撞c
+				SphereCollider collider = objBullet.GetComponent<SphereCollider>();
+				if (collider.Raycast(ray, out hit, 100.0f))//光线投射 选择小鸟 [distance光线的长度。]
+                {
+                	//接触点碰到球了
+					Debug.Log("collider is touched");
+					mBulletPickup = true;
+                }
+
+				break;
+					
+			case iPhoneTouchPhase.Moved:
+				{
+					if(mBulletPickup)
+					{
+						if(objBullet == null)
+						{
+							Debug.Log("objBullet is null");
+							return;
+						}
+						Vector3 lastKnowPosition = Camera.main.ScreenToWorldPoint(
+							new Vector3(touch.position.x, touch.position.y, 0));
+						lastKnowPosition.z = objBullet.transform.position.z;
+						mBulletFireDirection = objBullet.transform.position - lastKnowPosition;
+						mBulletFireDirection.Normalize();
+						magnitude = Mathf.Min(Vector3.Distance(objBullet.transform.position, lastKnowPosition), 1.5f);
+
+						objBullet.transform.position = objBullet.transform.position + mBulletFireDirection*(-magnitude);
+
+						ropeLineRenderer.SetPosition(0, new Vector3(3.9f, -2, 0));//弹弓橡皮筋点
+						ropeLineRenderer.SetPosition(1, objBullet.transform.position);//小鸟点
+						ropeLineRenderer.SetPosition(2, new Vector3(5.9f, -2, 0));//弹弓橡皮筋点
+
+					}
+				}
 				break;
 
 			case iPhoneTouchPhase.Ended:
 //				Debug.Log("Touch index " + touch.fingerId + " ended at position " + touch.position);
 				endTouch = touch;
 
-				//calculate launch power
-				Vector2 deltaVector = endTouch.position - startTouch.position;
-//				Vector2 temp = deltaVector;
-				float Distance = Vector2.Distance(endTouch.position, startTouch.position);
-				if(Distance < 25) return;
-//				float ratio = mDesignScreenHeight / Screen.height;
-//				Distance *= ratio;
-				float MaxDis = 350;
-				float MinDis = 50;
-				if(Distance < MinDis) Distance = MinDis;
-				if(Distance > MaxDis) Distance = MaxDis;
-				deltaVector.Normalize();
+				if(mBulletPickup)
+				{
 
-				//30是速度
-//				deltaVector.x = deltaVector.x * 20;
-//				deltaVector.y = deltaVector.y * 20;
+					initConstantForce = mBulletFireDirection * 500.0f * magnitude;//速度;
+					Debug.Log("direction is "+mBulletFireDirection + "magnitude is " + magnitude + 
+								"initConstantForce is" + initConstantForce);
+					//fire bullet
+					FireBullet ();	
+				}
+
+//				//calculate launch power
+//				Vector2 deltaVector = endTouch.position - startTouch.position;
+////				Vector2 temp = deltaVector;
+//				float Distance = Vector2.Distance(endTouch.position, startTouch.position);
+//				if(Distance < 25) return;
+////				float ratio = mDesignScreenHeight / Screen.height;
+////				Distance *= ratio;
+//				float MaxDis = 350;
+//				float MinDis = 50;
+//				if(Distance < MinDis) Distance = MinDis;
+//				if(Distance > MaxDis) Distance = MaxDis;
+//				deltaVector.Normalize();
 //
+//				//公式
+//				//Force = 2s/(t*t);	
+//				float s = 2.5f + (Distance-50) * 0.033f;
+////				if(s > 12.5) s = 12.5f;
+//				if(s > 11) s = 11;
 //
-//				initConstantForce = new Vector3(deltaVector.x, deltaVector.y, 0);
-//				Debug.Log("initVelocity is " + initConstantForce);
-
-				//公式
-				//Force = 2s/(t*t);	
-				float s = 2.5f + (Distance-50) * 0.033f;
-//				if(s > 12.5) s = 12.5f;
-				if(s > 11) s = 11;
-
-				//0.3是bullet下落的时间
-				mConstantForceZ = ( 2 * s) / (0.62f * 0.62f);
-
-				initConstantForce = new Vector3(deltaVector.x * mConstantForceZ , deltaVector.y * mConstantForceZ, 0);
-				Debug.Log("mConstantForceZ is " + mConstantForceZ);
-				Debug.Log("constant Force is " + initConstantForce);
-//				Debug.Log("s is " + s);
-//				float t = s/20.0f;
-//				mConstantForceZ = (2 * 1.1f) / (t * t); //1.1f是bullet球在
-				
-				//fire bullet
-				FireBullet ();	
+//				//0.3是bullet下落的时间
+//				mConstantForceZ = ( 2 * s) / (0.62f * 0.62f);
+//
+//				initConstantForce = new Vector3(deltaVector.x * mConstantForceZ , deltaVector.y * mConstantForceZ, 0);
+//				Debug.Log("mConstantForceZ is " + mConstantForceZ);
+//				Debug.Log("constant Force is " + initConstantForce);
+////				Debug.Log("s is " + s);
+////				float t = s/20.0f;
+////				mConstantForceZ = (2 * 1.1f) / (t * t); //1.1f是bullet球在
+//				
+//				//fire bullet
+//				FireBullet ();	
 				break;
 			}
 		}
@@ -818,15 +874,21 @@ public class study : MonoBehaviour {
 
 	void FireBullet () 
 	{
+		Debug.Log("FireBullet is called");
 		if (objBullet != null)
 		{
 			Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
 //			rigid.isKinematic = false;
 			//z == 2f 是设定了下落时间为0.5秒，下落1个单位， v=s/t 等于2
-			rigid.velocity = new Vector3(0,0,1.667f);
-
-			ConstantForce constantForce = objBullet.GetComponent<ConstantForce>();
-			constantForce.relativeForce = initConstantForce;
+//			rigid.velocity = new Vector3(initConstantForce.x,initConstantForce.y,0);
+//			rigid.AddForce(initConstantForce);
+			
+//			rigid.velocity = new Vector3(0,30,-1);
+			rigid.isKinematic = false;
+			rigid.useGravity = true;
+			rigid.AddForce(new Vector3(0,500,-5));
+//			ConstantForce constantForce = objBullet.GetComponent<ConstantForce>();
+//			constantForce.relativeForce = initConstantForce;
 
 			objBulletFired = objBullet;
 			objBullet = null;
@@ -846,6 +908,9 @@ public class study : MonoBehaviour {
 
 		Renderer render = objBullet.GetComponent<Renderer>();
 		render.material.color = getColor();
+
+		Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
+		rigid.isKinematic = true;
 	}
 
 	public void DealCollision(int indexX, int indexY, Color materialColor)

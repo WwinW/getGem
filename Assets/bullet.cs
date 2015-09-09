@@ -25,7 +25,7 @@ public class bullet : MonoBehaviour {
 		
 //		transform.localScale = new Vector3((1-0.7f*scale), (1-0.7f*scale), (1-0.7f*scale));
 		transform.localScale *= (1-0.7f*scale);
-		Debug.Log("bullet scale is " + (1-0.7f*scale));
+//		Debug.Log("bullet scale is " + (1-0.7f*scale));
 		if (transform.position.z > 5) 
 		{
 			Destroy(this);

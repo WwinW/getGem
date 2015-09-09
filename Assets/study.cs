@@ -678,8 +678,9 @@ public class study : MonoBehaviour {
 //		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
 		
 
-
+//		Debug.Log ("Update is called");
 		int nbTouches = Input.touchCount;
+			Debug.Log ("nbTouches is " + nbTouches);
 		if (nbTouches > 0)
 		{
 			UnityEngine.Touch touch = Input.GetTouch(0);
@@ -687,7 +688,7 @@ public class study : MonoBehaviour {
 			switch(phase)
 			{
 			case TouchPhase.Began:
-//				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
+				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
 
 				mBulletPickup = false;
 				startTouch = touch;

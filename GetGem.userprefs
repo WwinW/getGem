@@ -1,14 +1,17 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/facebookfun.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/study.cs">
     <Files>
-      <File FileName="Assets/study.cs" Line="712" Column="28" />
-      <File FileName="Assets/bullet.cs" Line="33" Column="3" />
-      <File FileName="Assets/facebookfun.cs" Line="16" Column="1" />
+      <File FileName="Assets/study.cs" Line="688" Column="17" />
+      <File FileName="Assets/iTouch.cs" Line="23" Column="32" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/mac/getGem/Assets/study.cs" line="686" column="1" />
+      <Breakpoint file="/Users/mac/getGem/Assets/study.cs" line="681" column="1" />
+      <Breakpoint file="/Users/mac/getGem/Assets/study.cs" line="611" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

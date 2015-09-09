@@ -59,7 +59,6 @@
      <Compile Include="Assets\Examples\Scripts\SubMenus\GraphRequest.cs" />
      <Compile Include="Assets\Examples\Scripts\SubMenus\MainMenu.cs" />
      <Compile Include="Assets\Examples\Scripts\SubMenus\Pay.cs" />
-     <Compile Include="Assets\Facebook.cs" />
      <Compile Include="Assets\Facebook\Scripts\AccessToken.cs" />
      <Compile Include="Assets\Facebook\Scripts\AppEventName.cs" />
      <Compile Include="Assets\Facebook\Scripts\AppEventParameterName.cs" />
@@ -267,11 +266,9 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
-     <Compile Include="Assets\PoolManagerExampleFiles\Scripts\CreationExample.cs" />
-     <Compile Include="Assets\PoolManagerExampleFiles\Scripts\ReallySimpleParticleSpawner.cs" />
-     <Compile Include="Assets\PoolManagerExampleFiles\Scripts\SimpleSpawner.cs" />
      <Compile Include="Assets\bullet.cs" />
      <Compile Include="Assets\cube.cs" />
+     <Compile Include="Assets\facebookfun.cs" />
      <Compile Include="Assets\facetoCamera.cs" />
      <Compile Include="Assets\fixCamera.cs" />
      <Compile Include="Assets\iTouch.cs" />
@@ -283,6 +280,7 @@
      <None Include="Assets\NGUI\Examples\Models\Orc\Orc Skin.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo20.txt" />
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo14.txt" />
+     <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored (TextureClip).shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (Packed) (TextureClip).shader" />

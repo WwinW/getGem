@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Facebook : MonoBehaviour {
+public class facebookfun : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

@@ -16,8 +16,8 @@ public class study : MonoBehaviour {
 
 	static public Color color;
 
-	iPhoneTouch startTouch;
-	iPhoneTouch endTouch;
+	UnityEngine.Touch startTouch;
+	UnityEngine.Touch endTouch;
 
 	Vector3 initConstantForce;
 
@@ -25,13 +25,13 @@ public class study : MonoBehaviour {
 	float intervalPos = 1.1f; 
 	private const int invalidIndex = -1;
 
-	int rangeMax = 3;
-	int recordIndexX;
-	int recordIndexY;
+	//int rangeMax = 3;
+	//int recordIndexX;
+	//int recordIndexY;
 
 
-	int DestroyCubeScore = 0;//消除cube获得的分数
-	int DestroyCubeCount = 0;//消除cube的数量
+	//int DestroyCubeScore = 0;//消除cube获得的分数
+	//int DestroyCubeCount = 0;//消除cube的数量
 
 	float cubeMoveTime = 0.8f;
 	float cubeMoveTimeMin = 0.1f;
@@ -43,6 +43,8 @@ public class study : MonoBehaviour {
 	UIProgressBar 	ProgressBar = null;
 	UILabel 		mDestroyCubeCount = null;
 //	UILabel			mDistanceLabel = null;
+	GameObject		mShooter = null;
+
 	public float MaxTime = 20.0f; 	//总的消耗时间
 	float DeltaTime = 0;			//消耗的时间		
 
@@ -52,7 +54,7 @@ public class study : MonoBehaviour {
 //	int colorCubeCount = 0;
 	int indexDestory = 0;
 	int mIndexXDestoryLevelUp = 0; //晋级动画消除行标记
-	int mAdvanceBaseCount = 0; //进阶基数, 游戏初始化的时候的赋值，随机一个数字，按照10:5:3:3:2的进阶比例来计算每个进阶指数需要消耗的数量
+//	int mAdvanceBaseCount = 0; //进阶基数, 游戏初始化的时候的赋值，随机一个数字，按照10:5:3:3:2的进阶比例来计算每个进阶指数需要消耗的数量
 
 	public int mInitAdvanceBaseCount = 100;
 	public int mInitDeltaCount = 20;
@@ -78,9 +80,9 @@ public class study : MonoBehaviour {
 
 	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, 0);
 
-	float mDesignScreenHeight = 960.0f;
+//	float mDesignScreenHeight = 960.0f;
 
-	float mConstantForceZ = 0;
+//	float mConstantForceZ = 0;
 
 	Vector3 mScorePanelPos; //cube记分牌在世界坐标中的位置
 
@@ -616,6 +618,7 @@ public class study : MonoBehaviour {
 		NGUITools.SetActive(ProgressBar.gameObject, false);
 		mDestroyCubeCount 	= GameObject.Find ("DestroyCubeCount").GetComponent<UILabel>();
 //		mDistanceLabel		= GameObject.Find ("Distance").GetComponent<UILabel>();
+		mShooter			= GameObject.Find("Shooter");
 		ropeLineRenderer	= GameObject.Find ("Rope").GetComponent<LineRenderer>();
 		ropeLineRenderer.material.color = new Color(1,0,0);
 		ropeLineRenderer.SetWidth(0.2f, 0.2f);
@@ -676,14 +679,14 @@ public class study : MonoBehaviour {
 		
 
 
-		int nbTouches = iPhoneInput.touchCount;
+		int nbTouches = Input.touchCount;
 		if (nbTouches > 0)
 		{
-			iPhoneTouch touch = iPhoneInput.GetTouch(0);
-			iPhoneTouchPhase phase = touch.phase;
+			UnityEngine.Touch touch = Input.GetTouch(0);
+			TouchPhase phase = touch.phase;
 			switch(phase)
 			{
-			case iPhoneTouchPhase.Began:
+			case TouchPhase.Began:
 //				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
 
 				mBulletPickup = false;
@@ -702,7 +705,7 @@ public class study : MonoBehaviour {
 
 				break;
 					
-			case iPhoneTouchPhase.Moved:
+			case TouchPhase.Moved:
 				{
 					if(mBulletPickup)
 					{
@@ -714,11 +717,11 @@ public class study : MonoBehaviour {
 						Vector3 lastKnowPosition = Camera.main.ScreenToWorldPoint(
 							new Vector3(touch.position.x, touch.position.y, 0));
 						lastKnowPosition.z = objBullet.transform.position.z;
-						mBulletFireDirection = objBullet.transform.position - lastKnowPosition;
+						mBulletFireDirection = mShooter.transform.position - lastKnowPosition;
 						mBulletFireDirection.Normalize();
-						magnitude = Mathf.Min(Vector3.Distance(objBullet.transform.position, lastKnowPosition), 1.5f);
+						magnitude = Mathf.Min(Vector3.Distance(mShooter.transform.position, lastKnowPosition), 1.5f);
 
-						objBullet.transform.position = objBullet.transform.position + mBulletFireDirection*(-magnitude);
+						objBullet.transform.position = mShooter.transform.position + mBulletFireDirection*(-magnitude);
 
 						ropeLineRenderer.SetPosition(0, new Vector3(3.9f, -2, 0));//弹弓橡皮筋点
 						ropeLineRenderer.SetPosition(1, objBullet.transform.position);//小鸟点
@@ -728,7 +731,7 @@ public class study : MonoBehaviour {
 				}
 				break;
 
-			case iPhoneTouchPhase.Ended:
+			case TouchPhase.Ended:
 //				Debug.Log("Touch index " + touch.fingerId + " ended at position " + touch.position);
 				endTouch = touch;
 
@@ -785,7 +788,7 @@ public class study : MonoBehaviour {
 		//游戏开始
 		mbGameing = true;
 
-		rangeMax = 3;	//色彩范围初始化	 
+//		rangeMax = 3;	//色彩范围初始化	 
 		//时间变化量
 		DeltaTime = 0;
 		//一次消除的数量置0
@@ -853,8 +856,8 @@ public class study : MonoBehaviour {
 		}
 
 		//初始化UI显示
-		DestroyCubeScore = 0;
-		DestroyCubeCount = 0;
+//		DestroyCubeScore = 0;
+//		DestroyCubeCount = 0;
 
 		ScoreLabel.text = string.Format ("Level:{0}", mLevel);
 //		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
@@ -883,10 +886,10 @@ public class study : MonoBehaviour {
 //			rigid.velocity = new Vector3(initConstantForce.x,initConstantForce.y,0);
 //			rigid.AddForce(initConstantForce);
 			
-//			rigid.velocity = new Vector3(0,30,-1);
+			rigid.velocity = new Vector3(0,30,-1);
 			rigid.isKinematic = false;
 			rigid.useGravity = true;
-			rigid.AddForce(new Vector3(0,500,-5));
+//			rigid.AddForce(new Vector3(0,500,-5));
 //			ConstantForce constantForce = objBullet.GetComponent<ConstantForce>();
 //			constantForce.relativeForce = initConstantForce;
 
@@ -916,8 +919,8 @@ public class study : MonoBehaviour {
 	public void DealCollision(int indexX, int indexY, Color materialColor)
 	{
 
-		recordIndexX = indexX;
-		recordIndexY = indexY;
+//		recordIndexX = indexX;
+//		recordIndexY = indexY;
 		if (gridArray [indexX, indexY].cube == null) 
 		{
 			return;

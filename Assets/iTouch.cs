@@ -2,14 +2,15 @@
 
 using UnityEngine;
 
-#if UNITY_IPHONE
-	#if DEBUG
+
+#if UNITY_IOS
+//	#if DEBUG
 		 //Iphone controls
-		public class iTouch : MonoBehaviour 
-		{
-			
-		}
-	#else
+//		public class iTouch : MonoBehaviour 
+//		{
+//			
+//		}
+//	#else
 		//Iphone with PC controls
 		public enum iPhoneTouchPhase
 		{
@@ -99,6 +100,8 @@ using UnityEngine;
 				iPhoneInput.touchCount = 0;
 				iPhoneInput.multiTouchEnabled = false;
 				iPhoneInput.orientation = iPhoneOrientation.LandscapeLeft;
+
+		Debug.Log ("UNITY_IOS define");
 			}
 			
 			void Update ()
@@ -192,7 +195,7 @@ using UnityEngine;
 				}
 			}
 		}
-	#endif
+//	#endif
 
 #else
 	//PC controls
@@ -285,6 +288,8 @@ using UnityEngine;
 			iPhoneInput.touchCount = 0;
 			iPhoneInput.multiTouchEnabled = false;
 			iPhoneInput.orientation = iPhoneOrientation.LandscapeLeft;
+
+			Debug.Log ("UNITY_IOS undefine");
 		}
 		
 		void Update ()

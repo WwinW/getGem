@@ -16,8 +16,8 @@ public class study : MonoBehaviour {
 
 	static public Color color;
 
-	UnityEngine.Touch startTouch;
-	UnityEngine.Touch endTouch;
+	iPhoneTouch startTouch;
+	iPhoneTouch endTouch;
 
 	Vector3 initConstantForce;
 
@@ -676,18 +676,15 @@ public class study : MonoBehaviour {
 		}
 
 //		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
-		
 
-//		Debug.Log ("Update is called");
-		int nbTouches = Input.touchCount;
-			Debug.Log ("nbTouches is " + nbTouches);
+		int nbTouches = iPhoneInput.touchCount;
 		if (nbTouches > 0)
 		{
-			UnityEngine.Touch touch = Input.GetTouch(0);
-			TouchPhase phase = touch.phase;
+			iPhoneTouch touch = iPhoneInput.GetTouch(0);
+			iPhoneTouchPhase phase = touch.phase;
 			switch(phase)
 			{
-			case TouchPhase.Began:
+			case iPhoneTouchPhase.Began:
 				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
 
 				mBulletPickup = false;
@@ -706,7 +703,7 @@ public class study : MonoBehaviour {
 
 				break;
 					
-			case TouchPhase.Moved:
+			case iPhoneTouchPhase.Moved:
 				{
 					if(mBulletPickup)
 					{
@@ -732,7 +729,7 @@ public class study : MonoBehaviour {
 				}
 				break;
 
-			case TouchPhase.Ended:
+			case iPhoneTouchPhase.Ended:
 //				Debug.Log("Touch index " + touch.fingerId + " ended at position " + touch.position);
 				endTouch = touch;
 

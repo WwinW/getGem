@@ -1,9 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/study.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/GoogleAd.cs">
     <Files>
-      <File FileName="Assets/study.cs" Line="625" Column="21" />
-      <File FileName="Assets/iTouch.cs" Line="375" Column="7" />
+      <File FileName="Assets/study.cs" Line="612" Column="21" />
+      <File FileName="Assets/iTouch.cs" Line="22" Column="4" />
+      <File FileName="Assets/GoogleAd.cs" Line="77" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

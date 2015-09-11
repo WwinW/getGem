@@ -59,6 +59,7 @@
      <Compile Include="Assets\Examples\Scripts\SubMenus\GraphRequest.cs" />
      <Compile Include="Assets\Examples\Scripts\SubMenus\MainMenu.cs" />
      <Compile Include="Assets\Examples\Scripts\SubMenus\Pay.cs" />
+     <Compile Include="Assets\ExplosiveBehavior.cs" />
      <Compile Include="Assets\Facebook\Scripts\AccessToken.cs" />
      <Compile Include="Assets\Facebook\Scripts\AppEventName.cs" />
      <Compile Include="Assets\Facebook\Scripts\AppEventParameterName.cs" />
@@ -157,6 +158,7 @@
      <Compile Include="Assets\GoogleMobileAds\Platforms\iOS\IOSBannerClient.cs" />
      <Compile Include="Assets\GoogleMobileAds\Platforms\iOS\IOSInterstitialClient.cs" />
      <Compile Include="Assets\GoogleMobileAds\Platforms\iOS\MonoPInvokeCallbackAttribute.cs" />
+     <Compile Include="Assets\ListenerBehavior.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipRandomItem.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\UICursor.cs" />
@@ -294,6 +296,7 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
      <Compile Include="Assets\bullet.cs" />
      <Compile Include="Assets\cube.cs" />
+     <Compile Include="Assets\eventTest.cs" />
      <Compile Include="Assets\facetoCamera.cs" />
      <Compile Include="Assets\fixCamera.cs" />
      <Compile Include="Assets\iTouch.cs" />

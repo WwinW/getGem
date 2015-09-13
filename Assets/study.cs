@@ -78,7 +78,7 @@ public class study : MonoBehaviour {
 	int mLevel = 1;		//玩家等级
 	public int LevelCount = 30; //每关的要求消球数量
 
-	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, 0);
+	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, -0.5f);
 
 //	float mDesignScreenHeight = 960.0f;
 
@@ -883,8 +883,9 @@ public class study : MonoBehaviour {
 			//z == 2f 是设定了下落时间为0.5秒，下落1个单位， v=s/t 等于2
 //			rigid.velocity = new Vector3(initConstantForce.x,initConstantForce.y,0);
 //			rigid.AddForce(initConstantForce);
-			
-			rigid.velocity = new Vector3(0,30,-1);
+
+			rigid.velocity = new Vector3(0,15,-5);
+
 			rigid.isKinematic = false;
 			rigid.useGravity = true;
 //			rigid.AddForce(new Vector3(0,500,-5));
@@ -894,6 +895,8 @@ public class study : MonoBehaviour {
 			objBulletFired = objBullet;
 			objBullet = null;
 
+			Debug.Log ("velocity is " + rigid.velocity);
+			Debug.Log ("position is " + rigid.position);
 			Invoke ("createNewBullet", 0.3f);
 		}
 	}
@@ -912,6 +915,8 @@ public class study : MonoBehaviour {
 
 		Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
 		rigid.isKinematic = true;
+
+		objBullet.gameObject.layer = 8;
 	}
 
 	public void DealCollision(int indexX, int indexY, Color materialColor)

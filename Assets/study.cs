@@ -78,7 +78,7 @@ public class study : MonoBehaviour {
 	int mLevel = 1;		//玩家等级
 	public int LevelCount = 30; //每关的要求消球数量
 
-	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, -0.5f);
+	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, 0);
 
 //	float mDesignScreenHeight = 960.0f;
 
@@ -714,13 +714,14 @@ public class study : MonoBehaviour {
 						}
 						Vector3 lastKnowPosition = Camera.main.ScreenToWorldPoint(
 							new Vector3(touch.position.x, touch.position.y, 0));
-						lastKnowPosition.z = objBullet.transform.position.z;
+						lastKnowPosition.z = mBulletInitPos.z;
+						Debug.Log ("objBullet position z is " + mBulletInitPos.z);
 						mBulletFireDirection = mShooter.transform.position - lastKnowPosition;
 						mBulletFireDirection.Normalize();
 						magnitude = Mathf.Min(Vector3.Distance(mShooter.transform.position, lastKnowPosition), 1.5f);
 
 						objBullet.transform.position = mShooter.transform.position + mBulletFireDirection*(-magnitude);
-
+		
 						ropeLineRenderer.SetPosition(0, new Vector3(3.9f, -2, 0));//弹弓橡皮筋点
 						ropeLineRenderer.SetPosition(1, objBullet.transform.position);//小鸟点
 						ropeLineRenderer.SetPosition(2, new Vector3(5.9f, -2, 0));//弹弓橡皮筋点
@@ -883,11 +884,15 @@ public class study : MonoBehaviour {
 			//z == 2f 是设定了下落时间为0.5秒，下落1个单位， v=s/t 等于2
 //			rigid.velocity = new Vector3(initConstantForce.x,initConstantForce.y,0);
 //			rigid.AddForce(initConstantForce);
-
-			rigid.velocity = new Vector3(0,15,-5);
+			float velocityZ = - (Physics.gravity.z*(7.0f/15));
+			Debug.Log ("velocity is " + velocityZ);
+			rigid.velocity = new Vector3(0,15,velocityZ);
 
 			rigid.isKinematic = false;
 			rigid.useGravity = true;
+
+			float height = Mathf.Abs (velocityZ) * Mathf.Abs (velocityZ) / (2 * Physics.gravity.z);
+			Debug.Log ("height is " + height);
 //			rigid.AddForce(new Vector3(0,500,-5));
 //			ConstantForce constantForce = objBullet.GetComponent<ConstantForce>();
 //			constantForce.relativeForce = initConstantForce;

@@ -1,12 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.IO;
+using System;
 
 public class study : MonoBehaviour {
 	
 	public cube cubeObject;
 	public bullet bulletObject;
 	public GameObject labelfab;
+	AudioSource mSoundBulletHit;
+	AudioSource mSoundBulletShoot;
+	AudioSource mSoundFailure;
+	AudioSource mSoundSuccess;
+
 //	public GameObject bullet;
 	public float speed = 10f;
 
@@ -16,6 +22,8 @@ public class study : MonoBehaviour {
 
 	static public Color color;
 
+	static public long mBestLevel = 0; //最好成绩
+
 	iPhoneTouch startTouch;
 	iPhoneTouch endTouch;
 
@@ -24,11 +32,6 @@ public class study : MonoBehaviour {
 	float generateY = 10.4f;
 	float intervalPos = 1.1f; 
 	private const int invalidIndex = -1;
-
-	//int rangeMax = 3;
-	//int recordIndexX;
-	//int recordIndexY;
-
 
 	//int DestroyCubeScore = 0;//消除cube获得的分数
 	//int DestroyCubeCount = 0;//消除cube的数量
@@ -40,16 +43,13 @@ public class study : MonoBehaviour {
 	bullet objBulletFired = null; //已发射出去的球
 
 	UILabel 		ScoreLabel = null; 
-	UIProgressBar 	ProgressBar = null;
 	UILabel 		mDestroyCubeCount = null;
-//	UILabel			mDistanceLabel = null;
-	GameObject		mShooter = null;
+	UILabel			mLevelLabel = null;
+	UILabel			mEndDialog_CurrLevel = null;
+	UILabel 		mEndDialog_BestLevel = null;
 
 	public float MaxTime = 20.0f; 	//总的消耗时间
 	float DeltaTime = 0;			//消耗的时间		
-
-//	FileStream fs;
-//	StreamWriter sw;
 
 //	int colorCubeCount = 0;
 	int indexDestory = 0;
@@ -66,34 +66,53 @@ public class study : MonoBehaviour {
 //	float mBaseTime = 0.1f;   //基础补偿时间
 
 	GameObject mEndPanel; //结束窗口
-	GameObject mBackGroud; //背景图
-
+//	GameObject mBackGroud; //背景图
+	GameObject mEndDialog;//结束对话框
 	// 碰撞处理需要的变量 start
 	static public bool 		mIsHaveCollision = false; 	//是否有同色的cube和bullet发生了碰撞
 	static public int 		mCollisionIndexX = invalidIndex	;	//发生碰撞的cube的X位置
 	static public int 		mCollisionIndexY = invalidIndex;	//发生碰撞的cube的Y位置
-	static public Color		mCollosionBulletColor; //发生膨胀的bullet的颜色
+	static public Color		mCollosionBulletColor; //发生碰撞的bullet的颜色
 	// 碰撞处理需要的变量 end
 
-	int mLevel = 1;		//玩家等级
+	long mLevel = 1;				//玩家等级
 	public int LevelCount = 30; //每关的要求消球数量
-
-	static public Vector3 mBulletInitPos = new Vector3(4.9f, -2, 0);
-
-//	float mDesignScreenHeight = 960.0f;
-
-//	float mConstantForceZ = 0;
+	int mStepCount = 10;		//可以玩的步数
+	static public Vector3 mBulletInitPos = new Vector3(4.9f, -3, 0);
+	Vector3 mRopeInitPos = new Vector3 (4.9f, -3.5f, 0);
 
 	Vector3 mScorePanelPos; //cube记分牌在世界坐标中的位置
 
 	static public int sDestroyCubeCount = 0;
 
-	private LineRenderer ropeLineRenderer;	//线段渲染器
+	private LineRenderer ropeLineRenderer = null;	//线段渲染器
 
 	bool 	mBulletPickup = false; //子弹是否为弹弓状态
 
 	Vector3 mBulletFireDirection; 	//子弹飞出去的方向
-	float magnitude;
+	float magnitude;				//弹弓的弹力大小
+	float magnitudeMax = 1.5f;		//弹弓的弹力最大值
+
+	float mDisH	= 2;				//垂直射高
+//	Vector3 mRopeLeftPot = new Vector3 (3.4f, -3, 0);
+//	Vector3 mRopeRightPot = new Vector3 (6.4f, -3, 0);
+
+	Vector3 RelationRopeLeft  	= new Vector3 (-1.5f, 0, 0); 	//弹弓的左点
+	Vector3 RelationRopeRight 	= new Vector3 (1.5f, 0, 0);		//弹弓的右点
+	Vector3 RelationDownPnt		= new Vector3 (0, -0.5f, 0);		//弹弓的下节点
+	float mAngle = 0;				//旋转偏移的角度
+
+	string Prefs_Key_BestLevel = "Prefs_Key_BestLevel";
+	string Prefs_Key_IgnoreAdCount = "Prefs_Key_IgnoreAdCount";
+	int IntersititialCount = 0;
+
+	GameObject m_Finger_Spr; //手指提示
+
+	public event EventHandler UpdateRecord;
+	public event EventHandler openRecord;
+	public event EventHandler requestAdBanner;
+	public event EventHandler requestAdInterstitial;
+	public event EventHandler gameStart;
 
 	public class grid
 	{
@@ -511,33 +530,33 @@ public class study : MonoBehaviour {
 			//一级是三种色彩，2级4种，3级5种，4级6种 5级7种
 			if(mLevel == 1)
 			{
-				index = Random.Range(0, 3);
+				index = UnityEngine.Random.Range(0, 3);
 				return colorArray[0,index];
 
 			}
 			else if(mLevel == 2)
 			{
-				index = Random.Range(0, 4);
+				index = UnityEngine.Random.Range(0, 4);
 				return colorArray[0, index];
 			}
 			else if(mLevel == 3)
 			{
-				index = Random.Range(0, 5);
+				index = UnityEngine.Random.Range(0, 5);
 				return colorArray[0, index];
 			}
 			else if(mLevel == 4)
 			{
-				index = Random.Range(0, 6);
+				index = UnityEngine.Random.Range(0, 6);
 				return colorArray[0, index];
 			}
 			else if(mLevel == 5)
 			{
-				index = Random.Range(0, 7);
+				index = UnityEngine.Random.Range(0, 7);
 				return colorArray[0, index];
 			}
 			else
 			{
-				index = Random.Range(0, 3);
+				index = UnityEngine.Random.Range(0, 3);
 				return colorArray[0, index];
 			}
 
@@ -545,84 +564,60 @@ public class study : MonoBehaviour {
 		else
 		{
 			//大于5级，就每级就是一个colorArray[2...]中的一个元素
-			//先出5中颜色，当有了消除数后，再从7个颜色中选
-			int range = mLevel - 5;
-			if(range >= colorArray.Length) range = colorArray.Length - 1;
-			if(DestroyCountAll == 0)
-			{
-				//消球数为0，就从前几种色中选择
-				if(mLevel < 10)
-				{
-					index = Random.Range(0, 4);
-					return colorArray[range, index];
-				}
-				else if(mLevel < 15)
-				{
-					index = Random.Range(0, 5);
-					return colorArray[range, index];
-				}
-				else if(mLevel < 20)
-				{
-					index = Random.Range(0, 6);
-					return colorArray[range, index];
-				}
-				else
-				{
-					index = Random.Range(0, 7);
-					return colorArray[range, index];
-				}
-
-
-			}
-			else
-			{
+			//当等级大于colorArray的范围，就随机出颜色
+			long range = mLevel - 5;
+			if (range < colorArray.Length) {
 				//消球数大于0， 就从7色中选择
-				index = Random.Range(0, 7);
-				return colorArray[range, index];
+				index = UnityEngine.Random.Range (0, 7);
+				return colorArray [range, index];
+			} else {
+				int rangeValue = UnityEngine.Random.Range (0, colorArray.Length);
+				index = UnityEngine.Random.Range (0, 7);
+				return colorArray [rangeValue, index];
 			}
+
 		}
 
 	}
-
-//	void RangeColorArray()
-//	{
-//		int i = 0;
-//		for ( i = colorArray.Length - 1; i > 0; i--)
-//		{
-//			int p = Random.Range(0, i);
-//			Color temp = colorArray[p];
-//			colorArray[p] = colorArray[i];
-//			colorArray[i] = temp;
-//		}
-//
-//		for ( i = RotationArray.Length - 1; i > 0; i--)
-//		{
-//			int p = Random.Range(0, i);
-//			int temp = RotationArray[p];
-//			RotationArray[p] = RotationArray[i];
-//			RotationArray[i] = temp;
-//		}
-//	}
-
-
+		
 	// Use this for initialization
 	void Start () {
 
-		GameObject StartButton = GameObject.Find ("Start");
-		UIEventListener.Get(StartButton).onClick = OnStartClick;
+		GameObject PauseButton = GameObject.Find ("Btn_Pause");
+		UIEventListener.Get (PauseButton).onClick = OnPauseClick;
+
+		GameObject StartButton = GameObject.Find ("Btn_Play");
+		UIEventListener.Get (StartButton).onClick = OnStartClick;
+
+		GameObject RestartButton = GameObject.Find ("Btn_Replay");
+		UIEventListener.Get (RestartButton).onClick = OnReStartClick;
+
+		GameObject RateButton = GameObject.Find ("Btn_Rate");
+		UIEventListener.Get (RateButton).onClick = OnRateClick;
+
+		GameObject RecordButton = GameObject.Find ("Btn_Record");
+		UIEventListener.Get (RecordButton).onClick = OnRecordClick;
 
 		mEndPanel 			= GameObject.Find ("EndPanel");
-		mBackGroud 			= GameObject.Find ("black_bg"); //背景图
+		mEndDialog 			= GameObject.Find ("EndDialog");
+//		mBackGroud 			= GameObject.Find ("black_bg"); //背景图
 		ScoreLabel 			= GameObject.Find ("ScoreLabel").GetComponent<UILabel>();
-		ProgressBar 		= GameObject.Find ("BackgroundProgress").GetComponent<UIProgressBar> ();
-		NGUITools.SetActive(ProgressBar.gameObject, false);
 		mDestroyCubeCount 	= GameObject.Find ("DestroyCubeCount").GetComponent<UILabel>();
-//		mDistanceLabel		= GameObject.Find ("Distance").GetComponent<UILabel>();
-		mShooter			= GameObject.Find("Shooter");
+		mLevelLabel 		= GameObject.Find ("LevelLabel").GetComponent<UILabel> ();
+		mEndDialog_CurrLevel = GameObject.Find ("Label_CurrLevel").GetComponent<UILabel> ();
+		mEndDialog_BestLevel = GameObject.Find ("Label_BestLevel").GetComponent<UILabel> ();
+
 		ropeLineRenderer	= GameObject.Find ("Rope").GetComponent<LineRenderer>();
-		ropeLineRenderer.material.color = new Color(1,0,0);
 		ropeLineRenderer.SetWidth(0.2f, 0.2f);
 		ropeLineRenderer.SetVertexCount(3);
+
+		mSoundBulletHit 	= GameObject.Find ("SoundBulletHit").GetComponent<AudioSource> ();
+		mSoundBulletShoot 	= GameObject.Find ("SoundBulletShoot").GetComponent<AudioSource> ();
+		mSoundFailure 		= GameObject.Find ("SoundFailure").GetComponent<AudioSource> ();
+		mSoundSuccess 		= GameObject.Find ("SoundSuccess").GetComponent<AudioSource> ();
+
+		m_Finger_Spr = GameObject.Find ("finger");
+		mBestLevel = PlayerPrefs.GetInt (Prefs_Key_BestLevel);
 			
 		GameInit();	//游戏初始化
 
@@ -633,10 +628,12 @@ public class study : MonoBehaviour {
 		Camera worldCamera = NGUITools.FindCameraForLayer(gridArray[4, 4].cube.gameObject.layer);
 		Camera guiCamera = NGUITools.FindCameraForLayer(GameObject.Find("Score_cube").gameObject.layer);
 
-		mScorePanelPos = guiCamera.WorldToScreenPoint(GameObject.Find("Score_cube").transform.position);
+		mScorePanelPos = guiCamera.WorldToScreenPoint(GameObject.Find("ScoreLabel").transform.position);
 		mScorePanelPos = worldCamera.ScreenToWorldPoint(mScorePanelPos);
 		mScorePanelPos.z = -1;
 		Debug.Log("world pos is " + mScorePanelPos);
+
+		PlayerPrefs.SetInt (Prefs_Key_IgnoreAdCount, 3);
 
 	}
 	
@@ -645,7 +642,10 @@ public class study : MonoBehaviour {
 
 	if(!mbGameing) return;
 
-	mDestroyCubeCount.text = string.Format("{0}/{1}", sDestroyCubeCount, LevelCount);
+//	mDestroyCubeCount.text = string.Format("{0}/{1}", sDestroyCubeCount, LevelCount);
+//	ScoreLabel.text = string.Format ("Level:{0} {1}/{2}",mLevel, sDestroyCubeCount, LevelCount);
+		ScoreLabel.text = string.Format ("{0}/{1}", sDestroyCubeCount, LevelCount);
+		mLevelLabel.text = string.Format ("LEVEL {0}", mLevel);
 
 	if(mbPlayLevelUp) return;
 
@@ -660,73 +660,79 @@ public class study : MonoBehaviour {
 
 		DeltaTime = DeltaTime + Time.deltaTime;
 
-//		ProgressBar.value = (MaxTime-DeltaTime)/MaxTime;
-//
-//		if((ProgressBar.value < 0.0001f) && (DestroyCountAll < LevelCount))
-//		{
-//			//小于0.1%的时候退出
-//			mbGameing = false;
-//		}
 
-		if(!mbGameing)
-		{
-			//游戏结束唤醒结束界面
-			NGUITools.SetActive(mEndPanel, true);
-			NGUITools.SetActive(mBackGroud, true);
-		}
+//		if(!mbGameing)
+//		{
+//			//游戏结束唤醒结束界面
+//			NGUITools.SetActive(mEndPanel, true);
+//			NGUITools.SetActive(mBackGroud, true);
+//		}
 
 //		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
 
 		int nbTouches = iPhoneInput.touchCount;
-		if (nbTouches > 0)
-		{
-			iPhoneTouch touch = iPhoneInput.GetTouch(0);
+		if (nbTouches > 0) {
+			iPhoneTouch touch = iPhoneInput.GetTouch (0);
 			iPhoneTouchPhase phase = touch.phase;
-			switch(phase)
-			{
+			switch (phase) {
 			case iPhoneTouchPhase.Began:
-				Debug.Log("New touch detected at position " + touch.position + " , index " + touch.fingerId);
+//				Debug.Log ("New touch detected at position " + touch.position + " , index " + touch.fingerId);
 
 				mBulletPickup = false;
 				startTouch = touch;
-				//处理弹簧
-				Ray ray = Camera.main.ScreenPointToRay(new Vector3(touch.position.x, touch.position.y, 0));//把鼠标的点定义一个射线
-//				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                RaycastHit hit;//光线投射碰撞c
-				SphereCollider collider = objBullet.GetComponent<SphereCollider>();
-				if (collider.Raycast(ray, out hit, 100.0f))//光线投射 选择小鸟 [distance光线的长度。]
-                {
-                	//接触点碰到球了
-					Debug.Log("collider is touched");
-					mBulletPickup = true;
-                }
+				if (objBullet) {
+					//处理弹簧
+					Ray ray = Camera.main.ScreenPointToRay (new Vector3 (touch.position.x, touch.position.y, 0));//把鼠标的点定义一个射线
+					//				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+					RaycastHit hit;//光线投射碰撞c
+					SphereCollider collider = objBullet.GetComponent<SphereCollider> ();
+					if (collider.Raycast (ray, out hit, 100.0f)) {//光线投射 选择小鸟 [distance光线的长度。]
+						//接触点碰到球了
+//						Debug.Log ("collider is touched");
+						mBulletPickup = true;
+
+						if (m_Finger_Spr.activeSelf == true) {
+							m_Finger_Spr.SetActive (false);
+						}
+					}
+				}
+
 
 				break;
 					
 			case iPhoneTouchPhase.Moved:
 				{
-					if(mBulletPickup)
-					{
-						if(objBullet == null)
-						{
-							Debug.Log("objBullet is null");
+					if (mBulletPickup) {
+						if (objBullet == null) {
+							Debug.Log ("objBullet is null");
 							return;
 						}
-						Vector3 lastKnowPosition = Camera.main.ScreenToWorldPoint(
-							new Vector3(touch.position.x, touch.position.y, 0));
+						Vector3 lastKnowPosition = Camera.main.ScreenToWorldPoint (
+							                           new Vector3 (touch.position.x, touch.position.y, 0));
 						lastKnowPosition.z = mBulletInitPos.z;
-						Debug.Log ("objBullet position z is " + mBulletInitPos.z);
-						mBulletFireDirection = mShooter.transform.position - lastKnowPosition;
-						mBulletFireDirection.Normalize();
-						magnitude = Mathf.Min(Vector3.Distance(mShooter.transform.position, lastKnowPosition), 1.5f);
 
-						objBullet.transform.position = mShooter.transform.position + mBulletFireDirection*(-magnitude);
-		
-						ropeLineRenderer.SetPosition(0, new Vector3(3.9f, -2, 0));//弹弓橡皮筋点
-						ropeLineRenderer.SetPosition(1, objBullet.transform.position);//小鸟点
-						ropeLineRenderer.SetPosition(2, new Vector3(5.9f, -2, 0));//弹弓橡皮筋点
+						if (lastKnowPosition.y > mBulletInitPos.y)
+							return;
 
-					}
+						mBulletFireDirection = mBulletInitPos - lastKnowPosition;
+						mBulletFireDirection.Normalize ();
+						magnitude = Mathf.Min (Vector3.Distance (mBulletInitPos, lastKnowPosition), magnitudeMax);
+						objBullet.transform.position = mBulletInitPos + mBulletFireDirection * (-magnitude);
+
+						Vector3 ropeMiddlePot = new Vector3 (objBullet.transform.position.x,
+							                        objBullet.transform.position.y, objBullet.transform.position.z);
+
+						if (lastKnowPosition.x < mBulletInitPos.x) {
+							mAngle = -Mathf.Acos (Vector3.Dot (new Vector3 (0, 1, 0), mBulletFireDirection)) * Mathf.Rad2Deg;
+						} else {
+							mAngle = Mathf.Acos (Vector3.Dot (new Vector3 (0, 1, 0), mBulletFireDirection)) * Mathf.Rad2Deg;
+						}
+							
+						ropeLineRenderer.SetPosition (0, mRopeInitPos + Quaternion.Euler (0, 0, mAngle) * RelationRopeLeft);//弹弓橡皮筋点
+						ropeLineRenderer.SetPosition (1, ropeMiddlePot + Quaternion.Euler (0, 0, mAngle) * RelationDownPnt);//小鸟点
+						ropeLineRenderer.SetPosition (2, mRopeInitPos + Quaternion.Euler (0, 0, mAngle) * RelationRopeRight);//弹弓橡皮筋点
+
+					}	
 				}
 				break;
 
@@ -734,49 +740,27 @@ public class study : MonoBehaviour {
 //				Debug.Log("Touch index " + touch.fingerId + " ended at position " + touch.position);
 				endTouch = touch;
 
-				if(mBulletPickup)
-				{
+				if (mBulletPickup) {
 
 					initConstantForce = mBulletFireDirection * 500.0f * magnitude;//速度;
-					Debug.Log("direction is "+mBulletFireDirection + "magnitude is " + magnitude + 
-								"initConstantForce is" + initConstantForce);
+//					Debug.Log ("direction is " + mBulletFireDirection + "magnitude is " + magnitude +
+//					"initConstantForce is" + initConstantForce);
 					//fire bullet
 					FireBullet ();	
 				}
-
-//				//calculate launch power
-//				Vector2 deltaVector = endTouch.position - startTouch.position;
-////				Vector2 temp = deltaVector;
-//				float Distance = Vector2.Distance(endTouch.position, startTouch.position);
-//				if(Distance < 25) return;
-////				float ratio = mDesignScreenHeight / Screen.height;
-////				Distance *= ratio;
-//				float MaxDis = 350;
-//				float MinDis = 50;
-//				if(Distance < MinDis) Distance = MinDis;
-//				if(Distance > MaxDis) Distance = MaxDis;
-//				deltaVector.Normalize();
-//
-//				//公式
-//				//Force = 2s/(t*t);	
-//				float s = 2.5f + (Distance-50) * 0.033f;
-////				if(s > 12.5) s = 12.5f;
-//				if(s > 11) s = 11;
-//
-//				//0.3是bullet下落的时间
-//				mConstantForceZ = ( 2 * s) / (0.62f * 0.62f);
-//
-//				initConstantForce = new Vector3(deltaVector.x * mConstantForceZ , deltaVector.y * mConstantForceZ, 0);
-//				Debug.Log("mConstantForceZ is " + mConstantForceZ);
-//				Debug.Log("constant Force is " + initConstantForce);
-////				Debug.Log("s is " + s);
-////				float t = s/20.0f;
-////				mConstantForceZ = (2 * 1.1f) / (t * t); //1.1f是bullet球在
-//				
-//				//fire bullet
-//				FireBullet ();	
 				break;
 			}
+		} 
+		else 
+		{
+			if (ropeLineRenderer) {
+
+				ropeLineRenderer.SetPosition (0, mRopeInitPos +  RelationRopeLeft);//弹弓橡皮筋点
+				ropeLineRenderer.SetPosition (1, mRopeInitPos);//小鸟点
+				ropeLineRenderer.SetPosition (2, mRopeInitPos + RelationRopeRight);//弹弓橡皮筋点
+			}
+
+
 		}
 
 	}
@@ -795,6 +779,8 @@ public class study : MonoBehaviour {
 		DestroyCountAll = 0; 	//一关消球的数量
 		sDestroyCubeCount = 0;
 		mLevel = 1;	//初始化等级
+		LevelCount = 30;
+		mStepCount = 10;
 		mIndexXDestoryLevelUp = 0;
 		//随机颜色
 //		RangeColorArray ();
@@ -858,25 +844,41 @@ public class study : MonoBehaviour {
 //		DestroyCubeScore = 0;
 //		DestroyCubeCount = 0;
 
-		ScoreLabel.text = string.Format ("Level:{0}", mLevel);
-//		mDestroyCubeCount.text = string.Format("{0}/{1}", DestroyCountAll, LevelCount);
-		mDestroyCubeCount.text = string.Format("{0}/{1}", sDestroyCubeCount, LevelCount);
+//		ScoreLabel.text = string.Format ("Level:{0}", mLevel);
+//		ScoreLabel.text = string.Format ("Level:{0} {1}/{2}",mLevel, sDestroyCubeCount, LevelCount);
+		ScoreLabel.text = string.Format ("{0}/{1}", sDestroyCubeCount, LevelCount);
+		mLevelLabel.text = string.Format ("LEVEL {0}", mLevel);
+//		mDestroyCubeCount.text = string.Format("{0}/{1}", sDestroyCubeCount, LevelCount);
+		mDestroyCubeCount.text = string.Format("STEP {0}", mStepCount);
 		//关闭结束界面
 		NGUITools.SetActive(mEndPanel, false);
-		NGUITools.SetActive(mBackGroud, false);
+//		NGUITools.SetActive(mBackGroud, false);
+		NGUITools.SetActive(mEndDialog, false);
 
 		mIsHaveCollision = false; 
 		mCollisionIndexX = invalidIndex;
 		mCollisionIndexY = invalidIndex;
 
 		initConstantForce = Vector3.zero;
+
+		m_Finger_Spr.SetActive (true);
+		m_Finger_Spr.transform.position = new Vector3 (mBulletInitPos.x+0.5f, mBulletInitPos.y, -10);
+
+		Hashtable args = new Hashtable();
+		//args.Add("time",1f* (generateY - y));
+		args.Add("time",1.5f);
+		args.Add("easetype", iTween.EaseType.easeInSine);
+		args.Add("x",mBulletInitPos.x+0.5f);
+		args.Add("y",mBulletInitPos.y-3);
+		args.Add("z",-10);
+		args.Add ("LoopType", "loop");
+		iTween.MoveTo(m_Finger_Spr, args);
 	
 	}	
-
-
+		
 	void FireBullet () 
 	{
-		Debug.Log("FireBullet is called");
+//		Debug.Log("FireBullet is called");
 		if (objBullet != null)
 		{
 			Rigidbody rigid = objBullet.GetComponent<Rigidbody> ();
@@ -884,25 +886,85 @@ public class study : MonoBehaviour {
 			//z == 2f 是设定了下落时间为0.5秒，下落1个单位， v=s/t 等于2
 //			rigid.velocity = new Vector3(initConstantForce.x,initConstantForce.y,0);
 //			rigid.AddForce(initConstantForce);
-			float velocityZ = - (Physics.gravity.z*(7.0f/15));
-			Debug.Log ("velocity is " + velocityZ);
-			rigid.velocity = new Vector3(0,15,velocityZ);
-
 			rigid.isKinematic = false;
 			rigid.useGravity = true;
 
-			float height = Mathf.Abs (velocityZ) * Mathf.Abs (velocityZ) / (2 * Physics.gravity.z);
-			Debug.Log ("height is " + height);
-//			rigid.AddForce(new Vector3(0,500,-5));
-//			ConstantForce constantForce = objBullet.GetComponent<ConstantForce>();
-//			constantForce.relativeForce = initConstantForce;
+
+			//射高控制为2个单位，求得v2的速度
+			float v2 = Mathf.Sqrt (mDisH * 2 * Mathf.Abs(Physics.gravity.z));
+
+			//射程
+			float R = 11 * magnitude;
+			//tanA = Rg/(v1*v1*2)
+//			float ctgA = R * Mathf.Abs(Physics.gravity.z) / (v2*v2*2);
+//			float tanA = v2*v2*2 / (R*Mathf.Abs(Physics.gravity.z));
+//
+//			float radian = Mathf.Atan (tanA);
+
+			//水平射速 v1
+			float v1 = R * Mathf.Abs(Physics.gravity.z) / (v2*2);
+//			float velocityZ = - (Physics.gravity.z*(7.0f/15));
+//			Debug.Log ("velocity is " + velocityZ);
+//			rigid.velocity = new Vector3(0,v1,-v2);
+			Vector3 relationVel = new Vector3(0, v1, -v2);
+			rigid.velocity = Quaternion.Euler (0, 0, mAngle) * relationVel;
+
+			//player sound effect
+			mSoundBulletShoot.Play();
 
 			objBulletFired = objBullet;
 			objBullet = null;
 
-			Debug.Log ("velocity is " + rigid.velocity);
-			Debug.Log ("position is " + rigid.position);
+			mStepCount--;
+			mDestroyCubeCount.text = string.Format("STEP {0}", mStepCount);
+
+//			Debug.Log ("velocity is " + rigid.velocity);
+//			Debug.Log ("position is " + rigid.position);
 			Invoke ("createNewBullet", 0.3f);
+
+			if (mStepCount < 0) 
+			{
+				mbGameing = false;
+
+//				mEndDialog_CurrLevel.text = string.Format ("{0}", mLevel);
+//				mEndDialog_BestLevel.text = string.Format ("{0}", mBestLevel);
+//				NGUITools.SetActive(mEndDialog, true);
+//
+//				//请求网络条幅广告
+//				if (requestAdBanner != null) {
+//					requestAdBanner (this, EventArgs.Empty);
+//				}
+//
+//				//请求网络插页广告
+//				if (requestAdInterstitial != null) {
+//					requestAdInterstitial (this, EventArgs.Empty);
+//				}
+
+				openMenu ();
+
+				//play sound effect
+				if (mLevel > mBestLevel) {
+
+					mBestLevel = mLevel;
+
+					PlayerPrefs.SetFloat (Prefs_Key_BestLevel, mBestLevel);
+					PlayerPrefs.Save ();
+
+					mSoundSuccess.Play ();
+					// update record
+					if (UpdateRecord != null) {
+						UpdateRecord (this, EventArgs.Empty);
+					}
+
+				} else {
+
+					if (UpdateRecord != null) {
+						UpdateRecord (this, EventArgs.Empty);
+					}
+					mSoundFailure.Play ();
+
+				}
+			}
 		}
 	}
 
@@ -1020,34 +1082,35 @@ public class study : MonoBehaviour {
 		//		else
 		//		{
 		Renderer render = gridArray[x, y].cube.GetComponent<Renderer>();
-		if(render.material.color == bulletColor)
-		{
+		if (render.material.color == bulletColor) {
 //			gridArray[x,y].cube = null;
 			
-			iTween.Stop(gridArray[x, y].cube.gameObject);
+			iTween.Stop (gridArray [x, y].cube.gameObject);
 
 			//destroy this cube
 //			Destroy(currentCube.gameObject);
 //			Debug.Log("Destroy cube index x is:"+x+" y is:"+y);
-			gridArray[x, y].cube.IsKilled = true;
+			gridArray [x, y].cube.IsKilled = true;
 			//destroy count +1 
 //			DestroyCubeCount++;
 //			Debug.Log("DestroyCubeCount:"+DestroyCubeCount);
 //			DeltaTime -= 0.5f;
 
 			// [x-1, y] 左
-			findSameColorCube(x-1, y, bulletColor);
+			findSameColorCube (x - 1, y, bulletColor);
 
 			//[x, y+1] 上
-			findSameColorCube(x, y+1, bulletColor);
+			findSameColorCube (x, y + 1, bulletColor);
 
 			// [x+1, y] 右
-			findSameColorCube(x+1, y, bulletColor);
+			findSameColorCube (x + 1, y, bulletColor);
 			
 			// [x, y-1] 下
-			findSameColorCube(x, y-1, bulletColor);
+			findSameColorCube (x, y - 1, bulletColor);
 			
 
+			
+		} else {
 			
 		}
 	}
@@ -1069,14 +1132,21 @@ public class study : MonoBehaviour {
 			 	sDestroyCubeCount 	= 0;
 			 	DestroyCountOnce	= 0;	//一次消球的数量清零
 				DeltaTime		 	= 0;	//重置倒计时时间
-				ScoreLabel.text = string.Format ("Level:{0}", mLevel);
-
+				mStepCount 			= 10;
+//				ScoreLabel.text = string.Format ("Level:{0} {1}/{2}",mLevel, sDestroyCubeCount, LevelCount);
+				ScoreLabel.text = string.Format ("{0}/{1}", sDestroyCubeCount, LevelCount);
+				mDestroyCubeCount.text = string.Format("STEP {0}", mStepCount);
+				mLevelLabel.text = string.Format ("LEVEL {0}", mLevel);
 				//转一下等级牌
 				iTween.PunchRotation( ScoreLabel.gameObject, iTween.Hash("y", 180, "time", 1.0f));
 
-				Debug.Log("LevelUpPlay's upFindCube is called");
+//				LevelCount += 2;
+//				Debug.Log("LevelUpPlay's upFindCube is called");
 				//替换空缺的cube
 				Invoke ("upFindCube", 0.5f);
+
+				//创建新子弹
+				createNewBullet ();
 			}
 			else
 			{
@@ -1095,7 +1165,7 @@ public class study : MonoBehaviour {
 			}
 		}
 
-	}
+	}          
 
 
 	void caluDestroyScore()
@@ -1106,12 +1176,26 @@ public class study : MonoBehaviour {
 		 {
 			mbPlayLevelUp		= true;	//播放升级动画的标志置为true
 
+			//将碰撞色彩置为黑色，作为刚升级后的状态判断
+			mCollosionBulletColor = Color.black;
+
 			Invoke("LevelUIEffect", 1.0f); //cube的飞入动画播完，播放相机震动动画
-		 	
+
+			//删除以创建好的bullet
+			if(objBullet != null)
+			{
+				DestroyObject(objBullet.gameObject);
+				objBullet = null;
+			}
+
+			//play sound effect
+			mSoundSuccess.Play();
 		 }
 		 else
 		 {
 	//		Invoke ("upFindCube", 0.2f);
+
+
 		 }
 
 	}
@@ -1123,6 +1207,36 @@ public class study : MonoBehaviour {
 			if(DestroyCountAll < LevelCount)
 			{
 				Invoke ("upFindCube", 0.5f);
+
+
+				if (mStepCount <= 0) 
+				{
+					mbGameing = false;
+
+					openMenu ();
+
+					//play sound effect
+					if (mLevel > mBestLevel) {
+						
+						mBestLevel = mLevel;
+
+						PlayerPrefs.SetFloat (Prefs_Key_BestLevel, mBestLevel);
+						PlayerPrefs.Save ();
+
+						mSoundSuccess.Play ();
+						// update record
+						if (UpdateRecord != null) {
+							UpdateRecord (this, EventArgs.Empty);
+						}
+
+					} else {
+						mSoundFailure.Play ();
+
+						if (UpdateRecord != null) {
+							UpdateRecord (this, EventArgs.Empty);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -1182,6 +1296,9 @@ public class study : MonoBehaviour {
 						DestroyCountAll++;
 	//					Debug.Log("DestroyCountOnce:"+DestroyCountOnce);
 						isSkip = false;
+
+						//play sound effect
+						mSoundBulletHit.Play();
 					}
 				}
 				else
@@ -1204,7 +1321,7 @@ public class study : MonoBehaviour {
 
 	void upFindCube()
 	{
-		Debug.Log("upFindCube is called");
+//		Debug.Log("upFindCube is called");
 		int x = 0;
 		int y = 0;
 		int blankCount = 0;
@@ -1269,10 +1386,19 @@ public class study : MonoBehaviour {
 
 //						int index = Random.Range(0, rangeMax);
 						Renderer render = newCube.GetComponent<Renderer>();
-//						render.material.color = colorArray[index];
-						render.material.color = getColor();
+
+						if (mStepCount != 10) {
+							if (mCollosionBulletColor != Color.black) {
+								render.material.color = mCollosionBulletColor;
+							} else {
+								render.material.color = getColor();
+							}
+//							
+						} else {
+							render.material.color = getColor();
+						}
+
 						render.enabled = false;
-//						newCube.transform.Rotate(new Vector3(0, RotationArray[index], 0));
 
 						gridArray[x, y].cube = newCube;
 						
@@ -1304,69 +1430,6 @@ public class study : MonoBehaviour {
 
 	}
 
-//	void DealCalcSameColor()
-//	{
-//		for (int index = 0; index < rangeMax; ++index) 
-//		{
-//			sw.WriteLine("");
-//			sw.WriteLine("color count is ");
-//
-//			for(int x = 0; x < maxX; ++x)
-//			{
-//				for(int y = 0; y < maxY; ++y)
-//				{
-//					colorCubeCount = 0;
-//					CalcSameColor(x, y, colorArray[index]);	
-//					if(colorCubeCount != 0)
-//					{
-//						sw.Write("{0}, ", colorCubeCount);
-//					}
-//					
-//				}
-//			}
-//
-//		}
-//	}
-//
-//	void CalcSameColor(int x, int y, Color bulletColor)
-//	{
-////		Debug.Log("visit cube index x is:"+x+" y is:"+y);
-//		if (x < 0 || x >= maxX) 
-//		{
-//			return;
-//		}
-//		if (y < 0 || y >= maxY) 
-//		{
-//			return;
-//		}
-//		
-//		if (gridArray [x, y].cube.IsChecked) 
-//		{
-//			return;
-//		}
-//
-//		Renderer render = gridArray[x, y].cube.GetComponent<Renderer>();
-//		if(render.material.color == bulletColor)
-//		{
-//			colorCubeCount++;
-//			gridArray [x, y].cube.IsChecked = true;
-////			sw.Write("({0} {1})", x, y);
-//		
-//			// [x-1, y]
-//			CalcSameColor(x-1, y, bulletColor);
-//
-//			//[x, y+1]
-//			CalcSameColor(x, y+1, bulletColor);
-//
-//			// [x+1, y]
-//			CalcSameColor(x+1, y, bulletColor);
-//			
-//			// [x, y-1]
-//			CalcSameColor(x, y-1, bulletColor);
-//
-//		}
-//
-//	}
 
 
 	void OnApplicationQuit()
@@ -1376,8 +1439,69 @@ public class study : MonoBehaviour {
 
 	void OnStartClick(GameObject button)
 	{
- 		GameInit();
+		if (mStepCount <= 0) {
+			//步数小于0的情况下，说明是已经失败了，那么就重新开始
+			GameInit ();
+		} else {
+			//继续玩
+			mbGameing = true;
+			NGUITools.SetActive(mEndDialog, false);
+		}
+
+		if (gameStart != null) {
+			gameStart (this, EventArgs.Empty);
+		}
 	} 
+
+	void OnPauseClick(GameObject button)
+	{
+		mbGameing = false;
+
+		openMenu ();
+
+		//play sound effect
+		if (mLevel > mBestLevel) {
+
+			mBestLevel = mLevel;
+
+			PlayerPrefs.SetFloat (Prefs_Key_BestLevel, mBestLevel);
+			PlayerPrefs.Save ();
+
+			// update record
+			if (UpdateRecord != null) {
+				UpdateRecord (this, EventArgs.Empty);
+			}
+
+		} else {
+
+			if (UpdateRecord != null) {
+				UpdateRecord (this, EventArgs.Empty);
+			}
+		}
+	}
+
+	void OnReStartClick(GameObject button)
+	{
+		GameInit ();
+
+		if (gameStart != null) {
+			gameStart (this, EventArgs.Empty);
+		}
+	}
+		
+	void OnRateClick(GameObject button)
+	{
+		#if UNITY_IOS
+		Application.OpenURL("itms-apps://itunes.apple.com/app/id1035223197");
+		#endif
+	}
+
+	void OnRecordClick(GameObject button)
+	{
+		if (openRecord != null) {
+			openRecord (this, EventArgs.Empty);
+		}
+	}
 
 	void FixedUpdate()
 	{
@@ -1392,10 +1516,42 @@ public class study : MonoBehaviour {
 
 	void LevelUIEffect()
 	{
-		Debug.Log("LevelUIEffect is called");
 
 		iTween.ShakePosition(Camera.main.gameObject, iTween.Hash("y", 0.3f, "time", 1.0f));
 
 		Invoke ("LevelUpPlay", 1.0f); //震动相机播完，升级动画
+	}
+
+	void openMenu()
+	{
+		IntersititialCount++;
+		Debug.Log ("IntersititialCount count is " + IntersititialCount);
+
+		mEndDialog_CurrLevel.text = string.Format ("{0}", mLevel);
+		mEndDialog_BestLevel.text = string.Format ("{0}", mBestLevel);
+
+		NGUITools.SetActive(mEndDialog, true);
+
+		//请求网络条幅广告
+		if (requestAdBanner != null) {
+			requestAdBanner (this, EventArgs.Empty);
+		}
+
+		//请求网络插页广告
+		if (IntersititialCount >= 4) {
+			IntersititialCount = 0;
+			Debug.Log ("requestAdInterstitial event is called");
+			int ignoreAdCount = PlayerPrefs.GetInt (Prefs_Key_IgnoreAdCount);
+			if (ignoreAdCount <= 0) {
+				if (requestAdInterstitial != null) {
+					requestAdInterstitial (this, EventArgs.Empty);
+				}
+			} else {
+				ignoreAdCount--;
+				PlayerPrefs.SetInt (Prefs_Key_IgnoreAdCount, ignoreAdCount);
+			}
+
+		}
+
 	}
 }

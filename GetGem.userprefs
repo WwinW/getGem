@@ -2,8 +2,8 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/study.cs">
     <Files>
-      <File FileName="Assets/study.cs" Line="889" Column="47" />
-      <File FileName="Assets/bullet.cs" Line="18" Column="18" />
+      <File FileName="Assets/study.cs" Line="1401" Column="30" />
+      <File FileName="Assets/GoogleAd.cs" Line="33" Column="14" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

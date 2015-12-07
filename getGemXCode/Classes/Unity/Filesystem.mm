@@ -37,14 +37,26 @@ extern "C" int UnityUpdateNoBackupFlag(const char* path, int setFlag)
 	return result == 0 ? 1 : 0;
 }
 
-extern "C" const char* const* UnityFontDirs()
+extern "C" const char* const* UnityFontFallbacks()
 {
-	static const char* const dirs[] = {
-		"/System/Library/Fonts/Cache",		// before iOS 8.2
-		"/System/Library/Fonts/AppFonts",	// iOS 8.2
-		"/System/Library/Fonts/Core",		// iOS 8.2
-		"/System/Library/Fonts/Extra",		// iOS 8.2
+	/*	The following is the family names of fonts that are used as fallbacks
+		for characters that were not fount in user-specified fonts. Add more
+		fonts and/or reorder the list to fit your needs. For certain character
+
+		NOTE: Some similar Chinese, Japanese and Korean characters share the
+		character number in Unicode, but are written differently. To display
+		such characters properly, correct font must be selected. Reorder the
+		fallback font list to fit your needs in such cases
+	*/
+	static const char* const fonts[] = {
+		"Hiragino Kaku Gothic ProN", // Japanese characters
+		"Heiti TC",				// Chinese characters (on 9.0 OS substitutes this with "PingFang TC")
+		".Sukhumvit Set UI",	// Thai characters on 8.2
+		"AppleGothic",
+		"Noto Sans Yi",			// Yi characters on 9.0
+		"Helvetica",
+		".LastResort",
 		NULL
 	};
-	return dirs;
+	return fonts;
 }

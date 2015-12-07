@@ -351,37 +351,31 @@ extern "C" void QueryTargetResolution(int* targetW, int* targetH)
 		kTargetResolution768p = 7
 	};
 
+	int systemW = GetMainDisplay().screenSize.width, systemH = GetMainDisplay().screenSize.height;
+	int renderW = 0, renderH = 0;
+
+	#define SCALED_RES(scale)	do { renderW = (int)(systemW * scale); renderH = (int)(systemH * scale); } while(0)
+	#define EXPLICIT_RES(w,h)	do { renderW = w; renderH = h; } while(0)
 
 	int targetRes = UnityGetTargetResolution();
-
-	float resMult = 1.0f;
 	if(targetRes == kTargetResolutionAutoPerformance)
 	{
-		switch(UnityDeviceGeneration())
-		{
-			case deviceiPhone4:		resMult = 0.6f;		break;
-			default:				resMult = 0.75f;	break;
-		}
+		if(UnityDeviceGeneration() == deviceiPhone4)	SCALED_RES(0.6f);
+		else											SCALED_RES(0.75f);
 	}
-
-	if(targetRes == kTargetResolutionAutoQuality)
+	else if(targetRes == kTargetResolutionAutoQuality)
 	{
-		switch(UnityDeviceGeneration())
-		{
-			case deviceiPhone4:		resMult = 0.8f;		break;
-			default:				resMult = 1.0f;		break;
-		}
+		if(UnityDeviceGeneration() == deviceiPhone4)
+			SCALED_RES(0.8f);
 	}
-
-	switch(targetRes)
+	else
 	{
-		case kTargetResolution320p:	*targetW = 320;	*targetH = 480;		break;
-		case kTargetResolution640p:	*targetW = 640;	*targetH = 960;		break;
-		case kTargetResolution768p:	*targetW = 768;	*targetH = 1024;	break;
-
-		default:
-			*targetW = GetMainDisplay().screenSize.width * resMult;
-			*targetH = GetMainDisplay().screenSize.height * resMult;
-			break;
+		if(targetRes == kTargetResolution320p)		EXPLICIT_RES(320, 480);
+		else if(targetRes == kTargetResolution640p)	EXPLICIT_RES(640, 960);
+		else if(targetRes == kTargetResolution768p)	EXPLICIT_RES(768, 1024);
 	}
+	*targetW = renderW; *targetH = renderH;
+
+	#undef EXPLICIT_RES
+	#undef SCALED_RES
 }

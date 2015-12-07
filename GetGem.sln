@@ -7,8 +7,6 @@ Project("{E44A14A5-E160-63AC-9A00-B8AE9CC4E346}") = "getGem", "Assembly-CSharp.c
 EndProject
 Project("{E44A14A5-E160-63AC-9A00-B8AE9CC4E346}") = "getGem", "Assembly-CSharp-Editor.csproj", "{D154563E-BB12-7C87-163A-20C913D89E87}"
 EndProject
-Project("{E44A14A5-E160-63AC-9A00-B8AE9CC4E346}") = "getGem", "Assembly-UnityScript.unityproj", "{A795223B-16E0-31B5-C7AB-552E1FFFC784}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,15 +25,11 @@ Global
 		{D154563E-BB12-7C87-163A-20C913D89E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D154563E-BB12-7C87-163A-20C913D89E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D154563E-BB12-7C87-163A-20C913D89E87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A795223B-16E0-31B5-C7AB-552E1FFFC784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A795223B-16E0-31B5-C7AB-552E1FFFC784}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A795223B-16E0-31B5-C7AB-552E1FFFC784}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A795223B-16E0-31B5-C7AB-552E1FFFC784}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																																													GlobalSection(MonoDevelopProperties) = preSolution
+																																																																																																																	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.inheritsSet = null

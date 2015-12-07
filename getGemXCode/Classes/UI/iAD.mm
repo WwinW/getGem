@@ -171,6 +171,7 @@
 {
 	::printf("ADBannerView error: %s\n", [[error localizedDescription] UTF8String]);
 	_showingBanner = NO;
+	UnityADBannerViewFailedToLoad();
 	[self layoutBannerImpl];
 }
 
@@ -251,14 +252,12 @@ AdState gAdState = kAdNone;
 
 - (void)interstitialAdDidUnload:(ADInterstitialAd*)interstitialAd
 {
-
 	if(_autoReload)	[self reloadAD];
 	else			[self unloadAD];
 }
 
 - (void)interstitialAdActionDidFinish:(ADInterstitialAd*)interstitialAd
 {
-
 	if(_autoReload)	[self reloadAD];
 	else			[self unloadAD];
 }

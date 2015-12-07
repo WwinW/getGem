@@ -117,11 +117,17 @@ public class cube : MonoBehaviour {
 					study.mCollisionIndexX = indexX;
 					study.mCollisionIndexY = indexY;
 					study.mCollosionBulletColor = bulletRender.material.color;
+
 				}
 			}
 			else
 			{
 				cubeRender.material.color = bulletRender.material.color;
+				study.mIsHaveCollision = true;
+				study.mCollisionIndexX = indexX;
+				study.mCollisionIndexY = indexY;
+				study.mCollosionBulletColor = bulletRender.material.color;
+
 			}
 
 			Destroy(otherObj.gameObject);

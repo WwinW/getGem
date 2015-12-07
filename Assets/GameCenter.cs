@@ -1,13 +1,33 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using UnityEngine.SocialPlatforms; 
+using UnityEngine.SocialPlatforms.GameCenter;
 
 public class GameCenter : MonoBehaviour {
 
+	public string leaderboardName = "color_pop_level";
+	public string leaderboardID = "com.weiwei.getgems.color_pop_level";
+
 	// Use this for initialization
 	void Start () {
-		
+
+
+		GameObject.Find ("GameObject").GetComponent<study> ().UpdateRecord += onUpdateRecord;
+		GameObject.Find	("GameObject").GetComponent<study> ().openRecord += onOpenRecord;
+
+
+		#if UNITY_EDITOR
+		Debug.Log("Unity Editor Authenticate is cancelled");
+
+		#elif UNITY_IOS
 		Social.localUser.Authenticate (ProcessAuthentication);
+
+		#else
+		Debug.Log("Any other platform Authenticate is cancelled");
+
+		#endif
+
 	}
 	
 	// Update is called once per frame
@@ -19,37 +39,91 @@ public class GameCenter : MonoBehaviour {
 	void ProcessAuthentication (bool success) {
 		if (success) {
 			Debug.Log ("Authenticated, checking achievements");
-			//请求成就数据，并设置回调函数
-			Social.LoadScores( "Leaderboard01", scores => {
-				if(scores.Length > 0)
-				{
-					Debug.Log ("Got " + scores.Length + "scores");
-					string myScores = "Leaderboard:\n";
+
+		Social.LoadScores ("color_pop_level", scores => {
+
+				if (scores.Length > 0) {
+					// SHOW THE SCORES RECEIVED
+					Debug.Log ("Received " + scores.Length + " scores");
 					foreach(IScore score in scores)
-						myScores += "\t" + score.userID + "" + score.formattedValue + "" + score.date + "\n";
-							Debug.Log(myScores);
+					{
+						if(study.mBestLevel < score.value)
+						{
+							study.mBestLevel = score.value;
+						}
+						
+						Debug.Log("Received " + score.value + " scores");
+						Debug.Log("Received leaderboardID is" + score.leaderboardID);
+
+					}
 				}
 				else
-					Debug.Log("No scores loaded");
+					Debug.Log ("No scores have been loaded.");
+				
+
 			});
+
 		}
 		else
 			Debug.Log ("Failed to authenticate");
+
 	}
 
 	void ReportScore (long score, string leaderboardID)
 	{
-		Debug.Log("Reporting score" + score + "on leaderboard" + leaderboardID);
-		Social.ReportScore(score, leaderboardID, success => {
-			Debug.Log(success ? "Reported score successfully" : "Failed to report score");
-		});
+
+		#if UNITY_EDITOR
+		Debug.Log("Unity Editor ReportScore is cancelled");
+
+		#elif UNITY_IOS
+		if (Social.localUser.authenticated) {
+
+			Debug.Log("Reporting score" + score + "on leaderboard" + leaderboardID);
+			Social.ReportScore(score, "color_pop_level", success => {
+				Debug.Log(success ? "Reported score successfully" : "Failed to report score");
+			});
+		}
+		#else
+		Debug.Log("Any other platform ReportScore is cancelled");
+
+		#endif
+	}
+
+	void OnRecordClick(GameObject button)
+	{
+		
+		ShowLeaderboard ();
+
 	}
 
 	public void ShowLeaderboard()
 	{
-		if(Social.localUser.authenticated){
-			Social.ShowLeaderboardUI();
-		}
+
+		#if UNITY_EDITOR
+		Debug.Log("Unity Editor ShowLeaderboardUI is cancelled");
+
+		#elif UNITY_IOS
+//		if(Social.localUser.authenticated){
+//			Social.ShowLeaderboardUI();
+//		}
+		Social.ShowLeaderboardUI();
+		#else
+		Debug.Log("Any other platform ShowLeaderboardUI is cancelled");
+
+		#endif
 	}
+
+	void onUpdateRecord(object sender, EventArgs e)
+	{
+		ReportScore (study.mBestLevel, leaderboardName);
+		Debug.Log ("color_pop_level update best level");
+	}
+
+	void onOpenRecord(object sender, EventArgs e)
+	{
+		ShowLeaderboard ();
+		Debug.Log ("ShowLeaderboard");
+	}
+
 
 }

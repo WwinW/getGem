@@ -49,14 +49,6 @@
      <Compile Include="Assets\Editor\PathologicalGames\Common\PGEditorUtils.cs" />
      <Compile Include="Assets\Editor\PathologicalGames\PoolManager\PreRuntimePoolItemInspector.cs" />
      <Compile Include="Assets\Editor\PathologicalGames\PoolManager\SpawnPoolInspector.cs" />
-     <Compile Include="Assets\Facebook\Editor\FacebookBuild.cs" />
-     <Compile Include="Assets\Facebook\Editor\FacebookPostprocess.cs" />
-     <Compile Include="Assets\Facebook\Editor\FacebookSettingsEditor.cs" />
-     <Compile Include="Assets\Facebook\Editor\android\FacebookAndroidUtil.cs" />
-     <Compile Include="Assets\Facebook\Editor\android\ManifestMod.cs" />
-     <Compile Include="Assets\Facebook\Editor\iOS\FixupFiles.cs" />
-     <Compile Include="Assets\Facebook\Editor\iOS\PListDict.cs" />
-     <Compile Include="Assets\Facebook\Editor\iOS\PListParser.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Editor\InvDatabaseInspector.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Editor\InvFindItem.cs" />
      <Compile Include="Assets\NGUI\Scripts\Editor\ActiveAnimationEditor.cs" />
@@ -173,7 +165,6 @@
      <None Include="Assets\Plugins\Android\GoogleMobileAdsPlugin\AndroidManifest.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 3.shader" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Additive Colored.shader" />
-     <None Include="Assets\Facebook\Scripts\Canvas\Resources\JSSDKBindings.txt" />
      <None Include="Assets\NGUI\Examples\Atlases\Refractive\Refractive Font - Header.txt" />
      <None Include="Assets\NGUI\Examples\Shaders\Refractive.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text (TextureClip).shader" />
